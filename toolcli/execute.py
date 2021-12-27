@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import sys
-import traceback
 import typing
 import types
 
@@ -69,6 +70,8 @@ def _enter_debugger() -> None:
 
     - adapted from https://stackoverflow.com/a/242514
     """
+
+    import traceback
 
     # print stacktrace
     extype, value, tb = sys.exc_info()

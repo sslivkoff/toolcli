@@ -1,4 +1,3 @@
-import copy
 import types
 import typing
 
@@ -86,6 +85,8 @@ standard_args: dict[str, ArgSpec] = {
 
 
 def build_config(config: typing.Optional[CLIConfig] = None) -> CLIConfig:
+    import copy
+
     if config is None:
         config = {}
     new_config = copy.copy(default_config)

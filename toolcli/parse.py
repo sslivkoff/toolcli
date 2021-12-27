@@ -1,6 +1,4 @@
-import argparse
 import importlib
-import inspect
 import os
 import sys
 import types
@@ -77,6 +75,11 @@ def parse_command_sequence(
 
     # sort command sequences from longest to shortest
     sequences = list(command_index.keys())
+    for sequence in sequences:
+        if not isinstance(sequence, tuple):
+            raise Exception(
+                'sequences should be tuples of str\'s, got: ' + str(sequence)
+            )
     if config.get(
         'sort_command_index', spec.default_config['sort_command_index']
     ):
@@ -175,6 +178,8 @@ def parse_raw_command(
 ) -> spec.ParsedArgs:
     """parse command args from raw_command according to command_spec"""
 
+    import argparse
+
     if config is None:
         config = spec.build_config(config)
 
@@ -263,6 +268,8 @@ def filetree_to_command_index(
     root_module_name: str,
     postfix: str = '_command.py',
 ) -> spec.CommandIndex:
+
+    import inspect
 
     if not postfix.endswith('.py'):
         raise Exception('postfix must end with ".py"')
