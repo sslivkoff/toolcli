@@ -1,3 +1,4 @@
+import os
 import typing
 import sys
 
@@ -184,6 +185,74 @@ def input_first_letter_choice(
         answer = answer.lower()
 
     return first_letters.index(answer)
+
+
+DirectoryCreateActions = typing.Literal['prompt', 'prompt_and_require', True]
+
+
+def input_filename_or_directory(
+    prompt: str,
+    default_directory: typing.Optional[str] = None,
+    default_filename: typing.Optional[str] = None,
+    create_directory: DirectoryCreateActions = 'prompt',
+    confirm_filename: bool = True,
+):
+
+    recursive_kwargs = {
+        'prompt': prompt,
+        'default_directory': default_directory,
+        'default_filename': default_filename,
+        'create_directory': create_directory,
+        'confirm_filename': confirm_filename,
+    }
+
+    path = input_prompt(prompt=prompt, default=default_directory)
+    if path == '':
+        return input_filename_or_directory(**recursive_kwargs)
+    path = os.path.abspath(os.path.normpath(os.path.expanduser(path)))
+
+    # assume path is a directory if does not have a file extension
+    is_directory = os.path.splitext(path)[-1] == ''
+
+    # add filename if is a directory and default filename given
+    if is_directory and default_filename is not None:
+        path = os.path.join(path, default_filename)
+        print('This is a directory. Will use', path)
+        if confirm_filename:
+            if not input_yes_or_no(
+                'Continue? ',
+                default='yes',
+                default_prefix='(default = ',
+            ):
+                print()
+                return input_filename_or_directory(**recursive_kwargs)
+
+    # create directory if does not exist
+    if is_directory:
+        directory = path
+    else:
+        directory = os.path.dirname(path)
+    if not os.path.isdir(directory):
+        if create_directory in ['prompt', 'prompt_and_require']:
+            directory_prompt = 'Directory does not exist. Create directory? '
+            if input_yes_or_no(
+                prompt=directory_prompt,
+                default='yes',
+                default_prefix='(default = ',
+            ):
+                print()
+                print('Creating', directory)
+                os.makedirs(directory)
+            elif create_directory == 'prompt_and_require':
+                print('Directory must exist')
+                print()
+                return input_filename_or_directory(**recursive_kwargs)
+
+        elif create_directory is True:
+            print('Creating', directory)
+            os.makedirs(directory)
+
+    return path
 
 
 # def input_confirm(
