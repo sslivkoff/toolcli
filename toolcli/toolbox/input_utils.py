@@ -2,6 +2,8 @@ import os
 import typing
 import sys
 
+from . import style_utils
+
 
 InvalidAction = typing.Literal['retry', 'exit']
 
@@ -13,6 +15,7 @@ class _InputYesNoKwargs(typing.TypedDict):
     default_prefix: typing.Optional[str]
     default_postfix: typing.Optional[str]
     add_prompt_symbol: bool
+    style: typing.Optional[str]
 
 
 def input_prompt(
@@ -21,6 +24,7 @@ def input_prompt(
     default_prefix: typing.Optional[str] = None,
     default_postfix: typing.Optional[str] = None,
     add_prompt_symbol: bool = True,
+    style: typing.Optional[str] = None,
 ) -> str:
 
     # add default prompt
@@ -35,7 +39,7 @@ def input_prompt(
 
     # obtain response
     try:
-        response = input(prompt)
+        response = style_utils.input(prompt, style=style)
     except KeyboardInterrupt:
         print()
         sys.exit()
@@ -47,13 +51,51 @@ def input_prompt(
     return response
 
 
-def input_yes_or_no(
+def input_int(
     prompt: str = '',
-    invalid_action: InvalidAction = 'exit',
+    invalid_action: InvalidAction = 'retry',
     default: typing.Optional[str] = None,
     default_prefix: typing.Optional[str] = None,
     default_postfix: typing.Optional[str] = None,
     add_prompt_symbol: bool = True,
+    style: typing.Optional[str] = None,
+) -> int:
+    recursive_kwargs: _InputYesNoKwargs = {
+        'prompt': prompt,
+        'invalid_action': invalid_action,
+        'default': default,
+        'default_prefix': default_prefix,
+        'default_postfix': default_postfix,
+        'add_prompt_symbol': add_prompt_symbol,
+        'style': style,
+    }
+
+    answer = input_prompt(
+        prompt=prompt,
+        default=default,
+        default_prefix=default_prefix,
+        default_postfix=default_postfix,
+        add_prompt_symbol=add_prompt_symbol,
+        style=style,
+    )
+
+    try:
+        return int(answer)
+    except ValueError:
+        print()
+        print('Invalid value')
+        print()
+        return input_int(**recursive_kwargs)
+
+
+def input_yes_or_no(
+    prompt: str = '',
+    invalid_action: InvalidAction = 'retry',
+    default: typing.Optional[str] = None,
+    default_prefix: typing.Optional[str] = None,
+    default_postfix: typing.Optional[str] = None,
+    add_prompt_symbol: bool = True,
+    style: typing.Optional[str] = None,
 ) -> bool:
 
     recursive_kwargs: _InputYesNoKwargs = {
@@ -63,6 +105,7 @@ def input_yes_or_no(
         'default_prefix': default_prefix,
         'default_postfix': default_postfix,
         'add_prompt_symbol': add_prompt_symbol,
+        'style': style,
     }
 
     response = input_prompt(
@@ -71,6 +114,7 @@ def input_yes_or_no(
         default_prefix=default_prefix,
         default_postfix=default_postfix,
         add_prompt_symbol=add_prompt_symbol,
+        style=style,
     )
 
     # act according to response
@@ -101,6 +145,7 @@ def input_number_choice(
     default_prefix: typing.Optional[str] = None,
     default_postfix: typing.Optional[str] = None,
     add_prompt_symbol: bool = True,
+    style: typing.Optional[str] = None,
 ) -> int:
 
     # validate inputs
@@ -114,16 +159,23 @@ def input_number_choice(
     if prompt is not None:
         full_prompt += prompt + '\n'
     for c, choice in enumerate(choices):
+        if default is not None and choice == default:
+            choice = choice + ' (default)'
         full_prompt += '    ' + str(c + 1) + '. ' + choice + '\n'
+
+    if default is not None:
+        full_prompt += '(default = ' + str(default) + ')\n'
 
     # select input
     choice = input_prompt(
         prompt=full_prompt,
-        default=default,
-        default_prefix=default_prefix,
-        default_postfix=default_postfix,
+        default=None,
         add_prompt_symbol=add_prompt_symbol,
+        style=style,
     )
+
+    if default is not None and choice == '':
+        choice = str(choices.index(default))
 
     try:
 
@@ -149,6 +201,7 @@ def input_number_choice(
                 default_prefix=default_prefix,
                 default_postfix=default_postfix,
                 add_prompt_symbol=add_prompt_symbol,
+                style=style,
             )
 
         else:
@@ -161,6 +214,7 @@ def input_first_letter_choice(
     post_prompt: typing.Optional[str] = None,
     default: typing.Optional[str] = None,
     default_prefix: str = '\n\ndefault = ',
+    style: typing.Optional[str] = None,
 ) -> int:
 
     # validate inputs
@@ -208,6 +262,7 @@ class InputFilenameOrDirectoryKwargs(typing.TypedDict, total=False):
     create_directory: DirectoryCreateActions
     confirm_filename: bool
     add_prompt_symbol: bool
+    style: typing.Optional[str]
 
 
 def input_filename_or_directory(
@@ -217,6 +272,7 @@ def input_filename_or_directory(
     create_directory: DirectoryCreateActions = 'prompt',
     confirm_filename: bool = True,
     add_prompt_symbol: bool = True,
+    style: typing.Optional[str] = None,
 ):
 
     recursive_kwargs: InputFilenameOrDirectoryKwargs = {
@@ -226,9 +282,10 @@ def input_filename_or_directory(
         'create_directory': create_directory,
         'confirm_filename': confirm_filename,
         'add_prompt_symbol': add_prompt_symbol,
+        'style': style,
     }
 
-    path = input_prompt(prompt=prompt, default=default_directory)
+    path = input_prompt(prompt=prompt, default=default_directory, style=style)
     if path == '':
         return input_filename_or_directory(**recursive_kwargs)
     path = os.path.abspath(os.path.normpath(os.path.expanduser(path)))
@@ -245,6 +302,7 @@ def input_filename_or_directory(
                 'Continue? ',
                 default='yes',
                 default_prefix='(default = ',
+                style=style,
             ):
                 print()
                 return input_filename_or_directory(**recursive_kwargs)
@@ -257,6 +315,7 @@ def input_filename_or_directory(
                 prompt=directory_prompt,
                 default='yes',
                 default_prefix='(default = ',
+                style=style,
             ):
                 print()
                 print('Creating', directory)
