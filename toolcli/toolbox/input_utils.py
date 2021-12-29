@@ -96,7 +96,7 @@ def input_number_choice(
     prompt: typing.Optional[str] = None,
     *,
     choices: list[str],
-    invalid_action: InvalidAction = 'exit',
+    invalid_action: InvalidAction = 'retry',
     default: typing.Optional[str] = None,
     default_prefix: typing.Optional[str] = None,
     default_postfix: typing.Optional[str] = None,
