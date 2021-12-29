@@ -12,6 +12,7 @@ class _InputYesNoKwargs(typing.TypedDict):
     default: typing.Optional[str]
     default_prefix: typing.Optional[str]
     default_postfix: typing.Optional[str]
+    add_prompt_symbol: bool
 
 
 def input_prompt(
@@ -19,7 +20,8 @@ def input_prompt(
     default: typing.Optional[str] = None,
     default_prefix: typing.Optional[str] = None,
     default_postfix: typing.Optional[str] = None,
-):
+    add_prompt_symbol: bool = True,
+) -> str:
 
     # add default prompt
     if default is not None:
@@ -28,6 +30,8 @@ def input_prompt(
         if default_postfix is None:
             default_postfix = ')\n'
         prompt += default_prefix + str(default) + default_postfix
+    if prompt.endswith('\n') and add_prompt_symbol:
+        prompt += '> '
 
     # obtain response
     try:
@@ -49,6 +53,7 @@ def input_yes_or_no(
     default: typing.Optional[str] = None,
     default_prefix: typing.Optional[str] = None,
     default_postfix: typing.Optional[str] = None,
+    add_prompt_symbol: bool = True,
 ) -> bool:
 
     recursive_kwargs: _InputYesNoKwargs = {
@@ -57,6 +62,7 @@ def input_yes_or_no(
         'default': default,
         'default_prefix': default_prefix,
         'default_postfix': default_postfix,
+        'add_prompt_symbol': add_prompt_symbol,
     }
 
     response = input_prompt(
@@ -64,6 +70,7 @@ def input_yes_or_no(
         default=default,
         default_prefix=default_prefix,
         default_postfix=default_postfix,
+        add_prompt_symbol=add_prompt_symbol,
     )
 
     # act according to response
@@ -93,6 +100,7 @@ def input_number_choice(
     default: typing.Optional[str] = None,
     default_prefix: typing.Optional[str] = None,
     default_postfix: typing.Optional[str] = None,
+    add_prompt_symbol: bool = True,
 ) -> int:
 
     # validate inputs
@@ -114,6 +122,7 @@ def input_number_choice(
         default=default,
         default_prefix=default_prefix,
         default_postfix=default_postfix,
+        add_prompt_symbol=add_prompt_symbol,
     )
 
     try:
@@ -138,6 +147,8 @@ def input_number_choice(
                 invalid_action=invalid_action,
                 default=default,
                 default_prefix=default_prefix,
+                default_postfix=default_postfix,
+                add_prompt_symbol=add_prompt_symbol,
             )
 
         else:
@@ -190,20 +201,31 @@ def input_first_letter_choice(
 DirectoryCreateActions = typing.Literal['prompt', 'prompt_and_require', True]
 
 
+class InputFilenameOrDirectoryKwargs(typing.TypedDict, total=False):
+    prompt: str
+    default_directory: typing.Optional[str]
+    default_filename: typing.Optional[str]
+    create_directory: DirectoryCreateActions
+    confirm_filename: bool
+    add_prompt_symbol: bool
+
+
 def input_filename_or_directory(
     prompt: str,
     default_directory: typing.Optional[str] = None,
     default_filename: typing.Optional[str] = None,
     create_directory: DirectoryCreateActions = 'prompt',
     confirm_filename: bool = True,
+    add_prompt_symbol: bool = True,
 ):
 
-    recursive_kwargs = {
+    recursive_kwargs: InputFilenameOrDirectoryKwargs = {
         'prompt': prompt,
         'default_directory': default_directory,
         'default_filename': default_filename,
         'create_directory': create_directory,
         'confirm_filename': confirm_filename,
+        'add_prompt_symbol': add_prompt_symbol,
     }
 
     path = input_prompt(prompt=prompt, default=default_directory)
@@ -227,11 +249,7 @@ def input_filename_or_directory(
                 print()
                 return input_filename_or_directory(**recursive_kwargs)
 
-    # create directory if does not exist
-    if is_directory:
-        directory = path
-    else:
-        directory = os.path.dirname(path)
+    directory = os.path.dirname(path)
     if not os.path.isdir(directory):
         if create_directory in ['prompt', 'prompt_and_require']:
             directory_prompt = 'Directory does not exist. Create directory? '
