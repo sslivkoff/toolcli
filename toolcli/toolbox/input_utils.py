@@ -175,7 +175,7 @@ def input_number_choice(
     )
 
     if default is not None and choice == '':
-        choice = str(choices.index(default))
+        choice = str(choices.index(default) + 1)
 
     try:
 
