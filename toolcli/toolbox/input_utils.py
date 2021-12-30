@@ -29,10 +29,16 @@ def input_prompt(
 
     # add default prompt
     if default is not None:
-        if default_prefix is None:
-            default_prefix = '\n(default = '
-        if default_postfix is None:
-            default_postfix = ')\n'
+        if prompt.endswith('\n'):
+            if default_prefix is None:
+                default_prefix = '\n(default = '
+            if default_postfix is None:
+                default_postfix = ')\n'
+        else:
+            if default_prefix is None:
+                default_prefix = '(default = '
+            if default_postfix is None:
+                default_postfix = ') '
         prompt += default_prefix + str(default) + default_postfix
     if prompt.endswith('\n') and add_prompt_symbol:
         prompt += '> '
@@ -188,6 +194,7 @@ def input_number_choice(
         # handle invalid input
 
         if invalid_action == 'exit':
+            print()
             print('invalid choice')
             sys.exit()
 
