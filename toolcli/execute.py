@@ -49,8 +49,17 @@ def _execute(parse_spec: spec.ParseSpec, args: spec.ParsedArgs) -> None:
     if config.get('pre_middlewares') is not None:
         _execute_middlewares(config['pre_middlewares'], parse_spec, args)
 
+    # remove cd arg if not using cd
+    command_spec = parse_spec['command_spec']
+    if config['include_cd'] and not command_spec.get('special', {}).get('cd'):
+        cd_arg_name = spec.standard_args['cd']['name']
+        if isinstance(cd_arg_name, str):
+            args.pop(cd_arg_name.strip('-'))
+        else:
+            raise Exception('multiple names for cd arg')
+
     # execute command
-    command_function = parse.resolve_function(parse_spec['command_spec']['f'])
+    command_function = parse.resolve_function(command_spec['f'])
     debug = config.get('include_debug_option') and args.get('debug')
     if not debug:
         command_function(**args)

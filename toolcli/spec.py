@@ -18,9 +18,14 @@ class ArgSpec(typing.TypedDict, total=False):
     completer: typing.Callable
 
 
+class SpecialCommandParams(typing.TypedDict, total=False):
+    cd: bool
+
+
 class CommandSpec(typing.TypedDict):
     f: typing.Callable[..., typing.Any]
     args: list[ArgSpec]
+    special: SpecialCommandParams
 
 
 CommandSequence = typing.Tuple[str, ...]
@@ -71,6 +76,7 @@ class CLIConfig(typing.TypedDict, total=False):
         'intermixed',
         'known_intermixed',
     ]
+    include_cd: bool
 
 
 default_config: CLIConfig = {
@@ -81,6 +87,7 @@ default_config: CLIConfig = {
 standard_args: dict[str, ArgSpec] = {
     'debug': {'name': ['--debug', '-d'], 'kwargs': {'action': 'store_true'}},
     'help': {'name': '--help', 'kwargs': {'action': 'store_true'}},
+    'cd': {'name': '--new_dir_tempfile'},
 }
 
 

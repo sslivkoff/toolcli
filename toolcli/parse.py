@@ -195,6 +195,8 @@ def parse_raw_command(
         arg_specs.append(spec.standard_args['debug'])
     if config.get('include_help_arg'):
         arg_specs.append(spec.standard_args['help'])
+    if config.get('include_cd'):
+        arg_specs.append(spec.standard_args['cd'])
 
     # add arguments
     for arg_spec in arg_specs:
