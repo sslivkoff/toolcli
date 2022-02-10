@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+import inspect
 import sys
 import typing
 import types
@@ -61,13 +63,22 @@ def _execute(parse_spec: spec.ParseSpec, args: spec.ParsedArgs) -> None:
     # execute command
     command_function = parse.resolve_function(command_spec['f'])
     debug = config.get('include_debug_option') and args.get('debug')
-    if not debug:
-        command_function(**args)
-    else:
-        try:
+    if not inspect.iscoroutinefunction(command_function):
+        if not debug:
             command_function(**args)
-        except Exception:
-            _enter_debugger()
+        else:
+            try:
+                command_function(**args)
+            except Exception:
+                _enter_debugger()
+    else:
+        if not debug:
+            asyncio.run(command_function(**args))
+        else:
+            try:
+                asyncio.run(command_function(**args))
+            except Exception:
+                _enter_debugger()
 
     # execute post middleware
     if config.get('post_middlewares') is not None:
