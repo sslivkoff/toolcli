@@ -8,6 +8,7 @@ setuptools.setup(
     install_requires=[
         'ipdb',
         'rich',
+        'typing_extensions',
     ],
 )
 

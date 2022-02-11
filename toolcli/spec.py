@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import types
 import typing
+from typing_extensions import TypedDict
 
 #
 # # types
@@ -14,17 +15,17 @@ FunctionReference = typing.Union[
 ]
 
 
-class ArgSpec(typing.TypedDict, total=False):
+class ArgSpec(TypedDict, total=False):
     name: typing.Union[str, list[str]]
     kwargs: dict[str, typing.Any]
     completer: typing.Callable
 
 
-class SpecialCommandParams(typing.TypedDict, total=False):
+class SpecialCommandParams(TypedDict, total=False):
     cd: bool
 
 
-class CommandSpec(typing.TypedDict):
+class CommandSpec(TypedDict):
     f: typing.Callable[..., typing.Any]
     args: list[ArgSpec]
     special: SpecialCommandParams
@@ -42,7 +43,7 @@ CommandIndex = typing.Dict[CommandSequence, CommandSpecReference]
 RawCommand = typing.Union[str, typing.List[str]]
 
 
-class ParseSpec(typing.TypedDict):
+class ParseSpec(TypedDict):
     raw_command: typing.Optional[RawCommand]
     command_index: typing.Optional[CommandIndex]
     command_sequence: typing.Optional[CommandSequence]
@@ -61,7 +62,7 @@ MiddlewareSpec = typing.Union['MiddlewareFunction', FunctionReference]
 MiddlewareSpecs = typing.List['MiddlewareSpec']
 
 
-class CLIConfig(typing.TypedDict, total=False):
+class CLIConfig(TypedDict, total=False):
     description: str
     common_args: list[ArgSpec]
     default_command_sequence: CommandSequence
