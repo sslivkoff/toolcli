@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import types
 import typing
+from typing_extensions import TypedDict
 
 #
 # # types
@@ -12,17 +15,17 @@ FunctionReference = typing.Union[
 ]
 
 
-class ArgSpec(typing.TypedDict, total=False):
+class ArgSpec(TypedDict, total=False):
     name: typing.Union[str, list[str]]
     kwargs: dict[str, typing.Any]
     completer: typing.Callable
 
 
-class SpecialCommandParams(typing.TypedDict, total=False):
+class SpecialCommandParams(TypedDict, total=False):
     cd: bool
 
 
-class CommandSpec(typing.TypedDict):
+class CommandSpec(TypedDict):
     f: typing.Callable[..., typing.Any]
     args: list[ArgSpec]
     special: SpecialCommandParams
@@ -35,12 +38,12 @@ CommandSpecReference = typing.Union[
     FunctionReference,
 ]
 
-CommandIndex = dict[CommandSequence, CommandSpecReference]
+CommandIndex = typing.Dict[CommandSequence, CommandSpecReference]
 
-RawCommand = typing.Union[str, list[str]]
+RawCommand = typing.Union[str, typing.List[str]]
 
 
-class ParseSpec(typing.TypedDict):
+class ParseSpec(TypedDict):
     raw_command: typing.Optional[RawCommand]
     command_index: typing.Optional[CommandIndex]
     command_sequence: typing.Optional[CommandSequence]
@@ -48,7 +51,7 @@ class ParseSpec(typing.TypedDict):
     config: 'CLIConfig'
 
 
-ParsedArgs = dict[str, typing.Any]
+ParsedArgs = typing.Dict[str, typing.Any]
 
 # the first argument to MiddlewareFunction should be CLIState
 # however, mypy does not currently support recursive types
@@ -56,10 +59,10 @@ ParsedArgs = dict[str, typing.Any]
 MiddlewareFunction = typing.Callable[[typing.Any, ParsedArgs], None]
 
 MiddlewareSpec = typing.Union['MiddlewareFunction', FunctionReference]
-MiddlewareSpecs = list['MiddlewareSpec']
+MiddlewareSpecs = typing.List['MiddlewareSpec']
 
 
-class CLIConfig(typing.TypedDict, total=False):
+class CLIConfig(TypedDict, total=False):
     description: str
     common_args: list[ArgSpec]
     default_command_sequence: CommandSequence

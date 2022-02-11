@@ -1,14 +1,17 @@
+from __future__ import annotations
+
 import os
 import typing
+from typing_extensions import Literal, TypedDict
 import sys
 
 from . import style_utils
 
 
-InvalidAction = typing.Literal['retry', 'exit']
+InvalidAction = Literal['retry', 'exit']
 
 
-class _InputYesNoKwargs(typing.TypedDict):
+class _InputYesNoKwargs(TypedDict):
     prompt: str
     invalid_action: InvalidAction
     default: typing.Optional[str]
@@ -259,10 +262,10 @@ def input_first_letter_choice(
     return first_letters.index(answer)
 
 
-DirectoryCreateActions = typing.Literal['prompt', 'prompt_and_require', True]
+DirectoryCreateActions = Literal['prompt', 'prompt_and_require', True]
 
 
-class InputFilenameOrDirectoryKwargs(typing.TypedDict, total=False):
+class InputFilenameOrDirectoryKwargs(TypedDict, total=False):
     prompt: str
     default_directory: typing.Optional[str]
     default_filename: typing.Optional[str]
