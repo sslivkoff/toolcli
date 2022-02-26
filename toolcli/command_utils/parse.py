@@ -212,7 +212,8 @@ def parse_raw_command(
             raise Exception('unknown name format: ' + str(name))
         kwargs = copy.copy(arg_spec)
         kwargs.pop('name')
-        kwargs.pop('completer')
+        if 'completer' in kwargs:
+            kwargs.pop('completer')
         parser.add_argument(*name_args, **kwargs)
 
     if isinstance(raw_command, str):

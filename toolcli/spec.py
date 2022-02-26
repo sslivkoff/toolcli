@@ -60,7 +60,7 @@ class SpecialCommandParams(TypedDict, total=False):
     cd: bool
 
 
-class CommandSpec(TypedDict):
+class CommandSpec(TypedDict, total=False):
     f: typing.Callable[..., typing.Any]
     args: list[ArgSpec]
     special: SpecialCommandParams
@@ -123,8 +123,8 @@ default_config: CLIConfig = {
 
 
 standard_args: dict[str, ArgSpec] = {
-    'debug': {'name': ['--debug', '-d'], 'action': 'store_true'}},
-    'help': {'name': '--help', 'action': 'store_true'}},
+    'debug': {'name': ['--debug', '-d'], 'action': 'store_true'},
+    'help': {'name': '--help', 'action': 'store_true'},
     'cd': {'name': '--new_dir_tempfile'},
 }
 
