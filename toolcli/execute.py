@@ -118,7 +118,11 @@ def _execute_middlewares(
 ) -> None:
     for middleware in middlewares:
         f = parse.resolve_function(middleware)
-        f(parse_spec=parse_spec, args=args)
+
+        if inspect.iscoroutinefunction(f):
+            asyncio.run(f(parse_spec=parse_spec, args=args))
+        else:
+            f(parse_spec=parse_spec, args=args)
 
 
 def execute_other_command_sequence(
