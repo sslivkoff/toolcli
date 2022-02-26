@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import importlib
 import os
 import sys
 import types
 import typing
 
-from . import spec
+from .. import spec
 
 
 def build_parse_spec(

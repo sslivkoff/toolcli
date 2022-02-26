@@ -6,7 +6,7 @@ import sys
 import typing
 import types
 
-from . import spec
+from .. import spec
 from . import parse
 
 
