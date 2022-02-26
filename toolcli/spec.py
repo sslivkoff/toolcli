@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import types
 import typing
 from typing_extensions import TypedDict
@@ -15,10 +16,44 @@ FunctionReference = typing.Union[
 ]
 
 
+# class ArgSpec(TypedDict, total=False):
+#     name: typing.Union[str, list[str]]
+#     kwargs: dict[str, typing.Any]
+#     completer: typing.Callable
+
+
+NamedAction = typing.Literal[
+    'store',
+    'store_const',
+    'store_true',
+    'store_false',
+    'append',
+    'append_const',
+    'count',
+    'help',
+    'version',
+    'extend',  # python 3.8 only
+]
+
+
 class ArgSpec(TypedDict, total=False):
-    name: typing.Union[str, list[str]]
-    kwargs: dict[str, typing.Any]
+    #
+    # special options
+    name: typing.Union[str, typing.Sequence[str]]
     completer: typing.Callable
+    #
+    # standard argparse options
+    action: typing.Optional[typing.Union[NamedAction, argparse.Action]]
+    nargs: typing.Optional[typing.Union[int, typing.Literal['?', '*', '+']]]
+    const: typing.Optional[typing.Any]
+    default: typing.Optional[typing.Any]
+    type: typing.Optional[typing.Any]
+    choices: typing.Optional[typing.Sequence[str]]
+    required: typing.Optional[bool]
+    help: typing.Optional[str]
+    metavar: typing.Optional[str]
+    dest: typing.Optional[str]
+    version: typing.Optional[str]
 
 
 class SpecialCommandParams(TypedDict, total=False):
@@ -88,8 +123,8 @@ default_config: CLIConfig = {
 
 
 standard_args: dict[str, ArgSpec] = {
-    'debug': {'name': ['--debug', '-d'], 'kwargs': {'action': 'store_true'}},
-    'help': {'name': '--help', 'kwargs': {'action': 'store_true'}},
+    'debug': {'name': ['--debug', '-d'], 'action': 'store_true'}},
+    'help': {'name': '--help', 'action': 'store_true'}},
     'cd': {'name': '--new_dir_tempfile'},
 }
 

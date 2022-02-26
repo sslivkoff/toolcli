@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import importlib
 import os
 import sys
@@ -209,7 +210,10 @@ def parse_raw_command(
             name_args = name
         else:
             raise Exception('unknown name format: ' + str(name))
-        parser.add_argument(*name_args, **arg_spec.get('kwargs', {}))
+        kwargs = copy.copy(arg_spec)
+        kwargs.pop('name')
+        kwargs.pop('completer')
+        parser.add_argument(*name_args, **kwargs)
 
     if isinstance(raw_command, str):
         raw_args = [arg.strip() for arg in raw_command.split(' ')]
