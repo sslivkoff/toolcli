@@ -5,4 +5,5 @@ from .execute import (
 )
 from .parse import (
     filetree_to_command_index,
+    resolve_command_spec,
 )
