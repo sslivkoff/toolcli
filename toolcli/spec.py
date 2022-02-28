@@ -16,12 +16,6 @@ FunctionReference = typing.Union[
 ]
 
 
-# class ArgSpec(TypedDict, total=False):
-#     name: typing.Union[str, list[str]]
-#     kwargs: dict[str, typing.Any]
-#     completer: typing.Callable
-
-
 NamedAction = typing.Literal[
     'store',
     'store_const',
@@ -58,6 +52,7 @@ class ArgSpec(TypedDict, total=False):
 
 class SpecialCommandParams(TypedDict, total=False):
     cd: bool
+    parse_spec: bool
 
 
 class CommandSpec(TypedDict, total=False):
@@ -115,6 +110,8 @@ class CLIConfig(TypedDict, total=False):
         'known_intermixed',
     ]
     include_cd: bool
+    include_version_subcommand: bool
+    version: str
 
 
 default_config: CLIConfig = {

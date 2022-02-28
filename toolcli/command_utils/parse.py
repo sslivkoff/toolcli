@@ -24,6 +24,16 @@ def build_parse_spec(
         if command_index is None:
             raise Exception('must specify command_spec or command_index')
 
+        # add version subcommand
+        if (
+            config.get('include_version_subcommand')
+            and ('version',) not in command_index
+        ):
+            from .default_subcommands import version_command
+
+            command_index = copy.copy(command_index)
+            command_index[('version',)] = version_command.get_command_spec
+
         if raw_command is None:
             raw_command = sys.argv[1:]
 
