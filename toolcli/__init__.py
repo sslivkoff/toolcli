@@ -5,3 +5,7 @@ from .input_utils import *
 from .style_utils import *
 from .terminal_utils import *
 from .spec import *
+
+
+__version__ = '0.2.0'
+
