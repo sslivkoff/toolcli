@@ -111,7 +111,9 @@ class CLIConfig(TypedDict, total=False):
     ]
     include_cd: bool
     include_version_subcommand: bool
+    include_help_subcommand: bool
     version: str
+    base_command: str
 
 
 default_config: CLIConfig = {

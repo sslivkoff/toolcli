@@ -34,6 +34,16 @@ def build_parse_spec(
             command_index = copy.copy(command_index)
             command_index[('version',)] = version_command.get_command_spec
 
+        # add help subcommand
+        if (
+            config.get('include_help_subcommand')
+            and ('help',) not in command_index
+        ):
+            from .default_subcommands import help_command
+
+            command_index = copy.copy(command_index)
+            command_index[('help',)] = help_command.get_command_spec
+
         if raw_command is None:
             raw_command = sys.argv[1:]
 
