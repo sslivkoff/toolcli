@@ -240,7 +240,9 @@ def parse_raw_command(
 
     parsed_args = vars(args)
 
-    if config.get('inject_parse_spec'):
+    if config.get('inject_parse_spec') or command_spec.get('special', {}).get(
+        'parse_spec'
+    ):
         if 'parse_spec' in parsed_args:
             raise Exception('key collision: cli')
         parsed_args['parse_spec'] = parse_spec
