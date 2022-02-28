@@ -283,7 +283,7 @@ def input_filename_or_directory(
     confirm_filename: bool = True,
     add_prompt_symbol: bool = True,
     style: typing.Optional[str] = None,
-):
+) -> str:
 
     recursive_kwargs: InputFilenameOrDirectoryKwargs = {
         'prompt': prompt,

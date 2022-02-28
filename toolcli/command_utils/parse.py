@@ -29,20 +29,20 @@ def build_parse_spec(
             config.get('include_version_subcommand')
             and ('version',) not in command_index
         ):
-            from .default_subcommands import version_command
-
             command_index = copy.copy(command_index)
-            command_index[('version',)] = version_command.get_command_spec
+            command_index[
+                ('version',)
+            ] = 'toolcli.command_utils.default_subcommands.version_command'
 
         # add help subcommand
         if (
             config.get('include_help_subcommand')
             and ('help',) not in command_index
         ):
-            from .default_subcommands import help_command
-
             command_index = copy.copy(command_index)
-            command_index[('help',)] = help_command.get_command_spec
+            command_index[
+                ('help',)
+            ] = 'toolcli.command_utils.default_subcommands.help_command'
 
         if raw_command is None:
             raw_command = sys.argv[1:]
@@ -234,7 +234,8 @@ def parse_raw_command(
         kwargs.pop('name')
         if 'completer' in kwargs:
             kwargs.pop('completer')
-        parser.add_argument(*name_args, **kwargs)
+        kwargs = typing.cast(spec.ArgSpec, {k: v for k, v in kwargs.items() if v is not None})
+        parser.add_argument(*name_args, **kwargs)  # type: ignore
 
     if isinstance(raw_command, str):
         raw_args = [arg.strip() for arg in raw_command.split(' ')]

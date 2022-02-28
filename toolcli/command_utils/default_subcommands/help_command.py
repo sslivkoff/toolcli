@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import toolcli
-import tooltable
+import tooltable  # type: ignore
 
 
-def get_command_spec():
+def get_command_spec() -> toolcli.CommandSpec:
     return {
         'f': help_command,
         'help': 'output help',
@@ -12,19 +14,11 @@ def get_command_spec():
     }
 
 
-def help_command(parse_spec):
+def help_command(parse_spec: toolcli.ParseSpec) -> None:
 
     config = parse_spec['config']
     command_index = parse_spec['command_index']
     base_command = config.get('base_command', '<base-command>')
-
-    rows = []
-    for command_sequence, command_spec_spec in command_index.items():
-        command_spec = toolcli.resolve_command_spec(command_spec_spec)
-        row = []
-        row.append(' '.join(command_sequence))
-        row.append(command_spec.get('help', ''))
-        rows.append(row)
 
     print('usage: ' + base_command + ' <subcommand> [options]')
     print()
@@ -36,15 +30,25 @@ def help_command(parse_spec):
         + base_command
         + ' <subcommand> -h'
     )
-    print()
-    print('available subcommands:')
 
-    tooltable.print_table(
-        rows=rows,
-        headers=None,
-        vertical_border=' ',
-        cross_border=' ',
-        horizontal_border=' ',
-        indent='  ',
-    )
+    if command_index is not None:
+        rows = []
+        for command_sequence, command_spec_spec in command_index.items():
+            command_spec = toolcli.resolve_command_spec(command_spec_spec)
+            row = []
+            row.append(' '.join(command_sequence))
+            row.append(command_spec.get('help', ''))
+            rows.append(row)
+
+        print()
+        print('available subcommands:')
+
+        tooltable.print_table(
+            rows=rows,
+            headers=None,
+            vertical_border=' ',
+            cross_border=' ',
+            horizontal_border=' ',
+            indent='  ',
+        )
 

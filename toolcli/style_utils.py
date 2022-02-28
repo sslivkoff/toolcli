@@ -1,7 +1,11 @@
+from __future__ import annotations
+
 import typing
 
 
-def print(*text: str, style=None, **rich_kwargs) -> None:
+def print(
+    *text: str, style: typing.Optional[str] = None, **rich_kwargs: typing.Any
+) -> None:
     import rich.console
 
     console = rich.console.Console()
@@ -9,7 +13,7 @@ def print(*text: str, style=None, **rich_kwargs) -> None:
 
 
 def input(
-    prompt: str, style: typing.Optional[str] = None, **rich_kwargs
+    prompt: str, style: typing.Optional[str] = None, **rich_kwargs: typing.Any
 ) -> str:
     import rich.console
 

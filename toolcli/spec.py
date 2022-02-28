@@ -57,6 +57,7 @@ class SpecialCommandParams(TypedDict, total=False):
 
 class CommandSpec(TypedDict, total=False):
     f: typing.Callable[..., typing.Any]
+    help: str
     args: list[ArgSpec]
     special: SpecialCommandParams
 
