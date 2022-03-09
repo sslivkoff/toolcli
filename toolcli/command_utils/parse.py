@@ -62,7 +62,10 @@ def build_parse_spec(
             ]
         raw_command = list(raw_command)
         for token in command_sequence:
-            raw_command.pop(raw_command.index(token))
+            if token in raw_command:
+                raw_command.pop(raw_command.index(token))
+            else:
+                break
 
         command_spec = resolve_command_spec(command_index[command_sequence])
 
