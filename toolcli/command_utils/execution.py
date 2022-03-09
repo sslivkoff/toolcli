@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import asyncio
 import inspect
+import importlib
 import sys
 import typing
 import types
 
 from .. import spec
-from . import parse
+from . import parsing
 
 
 def run_cli(
@@ -23,7 +24,7 @@ def run_cli(
     config = spec.build_config(config)
 
     # build parse spec
-    parse_spec = parse.build_parse_spec(
+    parse_spec = parsing.build_parse_spec(
         raw_command=raw_command,
         command_index=command_index,
         command_sequence=command_sequence,
@@ -32,7 +33,7 @@ def run_cli(
     )
 
     # parse args
-    args = parse.parse_args(
+    args = parsing.parse_args(
         raw_command=parse_spec['raw_command'],
         command_spec=parse_spec['command_spec'],
         config=config,
@@ -61,7 +62,7 @@ def _execute(parse_spec: spec.ParseSpec, args: spec.ParsedArgs) -> None:
             raise Exception('multiple names for cd arg')
 
     # execute command
-    command_function = parse.resolve_function(command_spec['f'])
+    command_function = resolve_function(command_spec['f'])
     debug = config.get('include_debug_option') and args.get('debug')
     if not inspect.iscoroutinefunction(command_function):
         if not debug:
@@ -83,6 +84,23 @@ def _execute(parse_spec: spec.ParseSpec, args: spec.ParsedArgs) -> None:
     # execute post middleware
     if config.get('post_middlewares') is not None:
         _execute_middlewares(config['post_middlewares'], parse_spec, args)
+
+
+def resolve_function(
+    function_ref: spec.FunctionReference,
+) -> types.FunctionType:
+    """return the function refered to by function_ref"""
+
+    if isinstance(function_ref, types.FunctionType):
+        return function_ref
+    elif isinstance(function_ref, (list, tuple)):
+        module_name, function_name = function_ref
+        module = importlib.import_module(module_name)
+        return getattr(module, function_name)
+    else:
+        raise Exception(
+            'could not parse command function: ' + str(function_ref)
+        )
 
 
 def _enter_debugger() -> None:
@@ -117,7 +135,7 @@ def _execute_middlewares(
     args: spec.ParsedArgs,
 ) -> None:
     for middleware in middlewares:
-        f = parse.resolve_function(middleware)
+        f = resolve_function(middleware)
 
         if inspect.iscoroutinefunction(f):
             asyncio.run(f(parse_spec=parse_spec, args=args))
