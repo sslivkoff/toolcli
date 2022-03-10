@@ -10,7 +10,7 @@ import sys
 from toolcli import spec
 
 
-def build_parse_spec(
+def create_parse_spec(
     raw_command: typing.Optional[spec.RawCommand],
     command_index: typing.Optional[spec.CommandIndex],
     command_sequence: typing.Optional[spec.CommandSequence],

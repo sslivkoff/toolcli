@@ -154,7 +154,7 @@ standard_args: dict[str, ArgSpec] = {
 }
 
 
-def build_config(config: typing.Optional[CLIConfig] = None) -> CLIConfig:
+def create_config(config: typing.Optional[CLIConfig] = None) -> CLIConfig:
     import copy
 
     if config is None:

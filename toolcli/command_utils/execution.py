@@ -20,11 +20,11 @@ def run_cli(
     args: typing.Optional[dict[str, typing.Any]] = None,
 ) -> None:
 
-    # build config
-    config = spec.build_config(config)
+    # create config
+    config = spec.create_config(config)
 
-    # build parse spec
-    parse_spec = parsing.build_parse_spec(
+    # create parse spec
+    parse_spec = parsing.create_parse_spec(
         raw_command=raw_command,
         command_index=command_index,
         command_sequence=command_sequence,

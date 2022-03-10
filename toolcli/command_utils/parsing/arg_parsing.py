@@ -58,7 +58,7 @@ def parse_raw_command(
     """parse command args from raw_command according to command_spec"""
 
     if config is None:
-        config = spec.build_config(config)
+        config = spec.create_config(config)
 
     # gather arg specs
     arg_specs = command_spec.get('args', [])
