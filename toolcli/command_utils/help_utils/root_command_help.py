@@ -6,6 +6,7 @@ import toolcli
 
 
 def print_root_command_help(parse_spec: toolcli.ParseSpec) -> None:
+    """print help message for a root command"""
 
     config = parse_spec['config']
     command_index = parse_spec['command_index']

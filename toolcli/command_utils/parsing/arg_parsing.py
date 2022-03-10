@@ -9,6 +9,8 @@ from .. import help_utils
 
 
 class SubcommandArgumentParser(argparse.ArgumentParser):
+    """subclass of argparse.ArgumentParser that stores current ParseSpec"""
+
     def __init__(
         self: SubcommandArgumentParser,
         parse_spec: spec.ParseSpec,
@@ -96,6 +98,7 @@ def parse_raw_command(
             else:
                 break
 
+    # tokenize raw command
     if isinstance(raw_command, str):
         raw_args = [arg.strip() for arg in raw_command.split(' ')]
     elif isinstance(raw_command, list):
@@ -117,13 +120,7 @@ def parse_raw_command(
         args, _ = parser.parse_known_intermixed_args(args=raw_args)
     else:
         raise Exception('unknown parse_mode: ' + str(parse_mode))
-
     parsed_args = vars(args)
-
-    if command_spec.get('special', {}).get('parse_spec'):
-        if 'parse_spec' in parsed_args:
-            raise Exception('key collision: cli')
-        parsed_args['parse_spec'] = parse_spec
 
     return parsed_args
 

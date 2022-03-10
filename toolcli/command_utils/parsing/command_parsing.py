@@ -17,6 +17,7 @@ def create_parse_spec(
     command_spec: typing.Optional[spec.CommandSpec],
     config: spec.CLIConfig,
 ) -> spec.ParseSpec:
+    """create ParseSpec data"""
 
     # get command spec
     if command_spec is None:
@@ -52,26 +53,27 @@ def create_parse_spec(
 def _add_default_subcommands(
     command_index: spec.CommandIndex, config: spec.CLIConfig
 ) -> spec.CommandIndex:
+    """add default subcommands to command_index according to config"""
+
+    command_index = copy.copy(command_index)
 
     # add version subcommand
     if (
         config.get('include_version_subcommand')
         and ('version',) not in command_index
     ):
-        command_index = copy.copy(command_index)
         command_index[
             ('version',)
         ] = 'toolcli.command_utils.default_subcommands.version_command'
 
     # add help subcommand
     if config.get('include_help_subcommand') and ('help',) not in command_index:
-        command_index = copy.copy(command_index)
         command_index[
             ('help',)
         ] = 'toolcli.command_utils.default_subcommands.help_command'
 
+    # add cd subcommand
     if config.get('include_cd_subcommand') and ('cd',) not in command_index:
-        command_index = copy.copy(command_index)
         command_index[
             ('cd',)
         ] = 'toolcli.command_utils.default_subcommands.cd_command'

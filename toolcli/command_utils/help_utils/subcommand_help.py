@@ -5,6 +5,7 @@ from .. import parsing
 
 
 def print_subcommand_usage(parse_spec: toolcli.ParseSpec) -> None:
+    """print usage for a subcommand"""
     config = parse_spec['config']
     command_sequence = parse_spec['command_sequence']
     command_spec = parse_spec['command_spec']
@@ -38,6 +39,7 @@ def print_subcommand_usage(parse_spec: toolcli.ParseSpec) -> None:
 
 
 def print_subcommand_help(parse_spec: toolcli.ParseSpec) -> None:
+    """print help for a subcommand"""
     command_spec = parse_spec['command_spec']
 
     print_subcommand_usage(parse_spec)

@@ -52,6 +52,7 @@ def add_command_sequence_aliases(
     command_index: spec.CommandIndex,
     config: spec.CLIConfig,
 ) -> spec.CommandIndex:
+    """add command sequence aliases to command index"""
     command_sequence_aliases = config.get('command_sequence_aliases')
     if command_sequence_aliases is not None:
 

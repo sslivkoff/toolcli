@@ -60,6 +60,7 @@ def run_cli(
 def execute_parsed_command(
     parse_spec: spec.ParseSpec, args: spec.ParsedArgs
 ) -> None:
+    """execute parsed command with specified arguments"""
 
     # execute pre middleware
     config = parse_spec['config']
@@ -86,6 +87,7 @@ def execute_command_spec(
     args: dict,
     debug: bool = False,
 ) -> None:
+    """execute command_spec command with specified arguments"""
 
     function = resolve_function(command_spec['f'])
 
@@ -159,6 +161,7 @@ def _execute_middlewares(
     parse_spec: spec.ParseSpec,
     args: spec.ParsedArgs,
 ) -> None:
+    """execute middlewares"""
     for middleware in middlewares:
         f = resolve_function(middleware)
 
