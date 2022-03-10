@@ -21,38 +21,12 @@ def create_parse_spec(
     # get command spec
     if command_spec is None:
 
+        # add default subcommands
         if command_index is None:
             raise Exception('must specify command_spec or command_index')
+        command_index = _add_default_subcommands(command_index, config)
 
-        # add version subcommand
-        if (
-            config.get('include_version_subcommand')
-            and ('version',) not in command_index
-        ):
-            command_index = copy.copy(command_index)
-            command_index[
-                ('version',)
-            ] = 'toolcli.command_utils.default_subcommands.version_command'
-
-        # add help subcommand
-        if (
-            config.get('include_help_subcommand')
-            and ('help',) not in command_index
-        ):
-            command_index = copy.copy(command_index)
-            command_index[
-                ('help',)
-            ] = 'toolcli.command_utils.default_subcommands.help_command'
-
-        if (
-            config.get('include_cd_subcommand')
-            and ('cd',) not in command_index
-        ):
-            command_index = copy.copy(command_index)
-            command_index[
-                ('cd',)
-            ] = 'toolcli.command_utils.default_subcommands.cd_command'
-
+        # get raw command
         if raw_command is None:
             raw_command = sys.argv[1:]
 
@@ -87,6 +61,36 @@ def create_parse_spec(
     }
 
     return parse_spec
+
+
+def _add_default_subcommands(
+    command_index: spec.CommandIndex, config: spec.CLIConfig
+) -> spec.CommandIndex:
+
+    # add version subcommand
+    if (
+        config.get('include_version_subcommand')
+        and ('version',) not in command_index
+    ):
+        command_index = copy.copy(command_index)
+        command_index[
+            ('version',)
+        ] = 'toolcli.command_utils.default_subcommands.version_command'
+
+    # add help subcommand
+    if config.get('include_help_subcommand') and ('help',) not in command_index:
+        command_index = copy.copy(command_index)
+        command_index[
+            ('help',)
+        ] = 'toolcli.command_utils.default_subcommands.help_command'
+
+    if config.get('include_cd_subcommand') and ('cd',) not in command_index:
+        command_index = copy.copy(command_index)
+        command_index[
+            ('cd',)
+        ] = 'toolcli.command_utils.default_subcommands.cd_command'
+
+    return command_index
 
 
 def parse_command_sequence(
