@@ -11,7 +11,7 @@ from .. import help_utils
 class SubcommandArgumentParser(argparse.ArgumentParser):
     def __init__(
         self,
-        parse_spec: spec.ParseSpec,
+        parse_spec: typing.Optional[spec.ParseSpec],
         **kwargs
     ):
         self.parse_spec = parse_spec
