@@ -42,10 +42,12 @@ def run_cli(
     )
 
     # execute command_spec and middlewares
-    execute(parse_spec=parse_spec, args=args)
+    execute_parsed_command(parse_spec=parse_spec, args=args)
 
 
-def execute(parse_spec: spec.ParseSpec, args: spec.ParsedArgs) -> None:
+def execute_parsed_command(
+    parse_spec: spec.ParseSpec, args: spec.ParsedArgs
+) -> None:
 
     # execute pre middleware
     config = parse_spec['config']
@@ -56,12 +58,10 @@ def execute(parse_spec: spec.ParseSpec, args: spec.ParsedArgs) -> None:
     function_args = parsing.get_function_args(parse_spec, args)
 
     # execute command
-    command_function = resolve_function(parse_spec['command_spec']['f'])
-    debug = bool(config.get('include_debug_arg') and args.get('debug'))
-    _execute_function(
-        function=command_function,
+    execute_command_spec(
+        command_spec=parse_spec['command_spec'],
         args=function_args,
-        debug=debug,
+        debug=bool(config.get('include_debug_arg') and args.get('debug')),
     )
 
     # execute post middleware
@@ -69,9 +69,13 @@ def execute(parse_spec: spec.ParseSpec, args: spec.ParsedArgs) -> None:
         _execute_middlewares(config['post_middlewares'], parse_spec, args)
 
 
-def _execute_function(
-    function: typing.Callable, args: dict, debug: bool
+def execute_command_spec(
+    command_spec: spec.CommandSpec,
+    args: dict,
+    debug: bool = False,
 ) -> None:
+
+    function = resolve_function(command_spec['f'])
 
     if not inspect.iscoroutinefunction(function):
 
@@ -155,28 +159,18 @@ def _execute_middlewares(
 def execute_other_command_sequence(
     command_sequence: spec.CommandSequence,
     parse_spec: spec.ParseSpec,
-    args: dict[str, typing.Any] = None,
+    args: dict[str, typing.Any],
+    debug: bool = False,
 ) -> None:
     """execute a command sequence from within another command function"""
-    run_cli(
-        raw_command=parse_spec['raw_command'],
-        command_sequence=command_sequence,
-        command_index=parse_spec['command_index'],
-        config=parse_spec['config'],
-        args=args,
-    )
-
-
-def execute_other_command_spec(
-    command_spec: spec.CommandSpec,
-    parse_spec: spec.ParseSpec,
-    args: typing.Optional[spec.ParsedArgs] = None,
-) -> None:
-    """execute a command spec from within another command function"""
-    run_cli(
+    command_index = parse_spec['command_index']
+    if command_index is None:
+        raise Exception('invalid command_index')
+    command_spec_reference = command_index[command_sequence]
+    command_spec = parsing.resolve_command_spec(command_spec_reference)
+    execute_command_spec(
         command_spec=command_spec,
-        raw_command=parse_spec['raw_command'],
-        config=parse_spec['config'],
         args=args,
+        debug=debug,
     )
 

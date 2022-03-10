@@ -1,6 +1,6 @@
 from .execution import (
     run_cli,
-    execute_other_command_spec,
+    execute_command_spec,
     execute_other_command_sequence,
 )
 from .parsing import (

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import tooltable  # type: ignore
 
 import toolcli
