@@ -26,7 +26,9 @@ def print_root_command_help(parse_spec):
             command_spec = toolcli.resolve_command_spec(command_spec_spec)
             row = []
             row.append(' '.join(command_sequence))
-            row.append(command_spec.get('help', ''))
+            subcommand_help = command_spec.get('help', '')
+            subcommand_help = subcommand_help.split('\n')[0]
+            row.append(subcommand_help)
             rows.append(row)
 
         print()

@@ -5,19 +5,26 @@ import copy
 import typing
 
 from toolcli import spec
+from .. import help_utils
 
 
 class SubcommandArgumentParser(argparse.ArgumentParser):
-    def __init__(self, command_spec, config, **kwargs):
-        self.config = config
-        self.command_spec = command_spec
+    def __init__(
+        self,
+        parse_spec: spec.ParseSpec,
+        **kwargs
+    ):
+        self.parse_spec = parse_spec
         super().__init__(**kwargs)
 
-    # def print_usage(self, file=None):
-    #     print('USAGE')
+    def print_usage(self, file=None):
+        help_utils.print_subcommand_usage(self.parse_spec)
 
     def print_help(self, file=None):
-        print('HELP')
+        if self.parse_spec['command_sequence'] == ():
+            help_utils.print_root_command_help(self.parse_spec)
+        else:
+            help_utils.print_subcommand_help(self.parse_spec)
 
 
 def parse_args(
@@ -58,17 +65,13 @@ def parse_raw_command(
     arg_specs += config.get('common_args', [])
     if config.get('include_debug_arg'):
         arg_specs.append(spec.standard_args['debug'])
-    if config.get('include_help_arg'):
-        arg_specs.append(spec.standard_args['help'])
     if config.get('include_cd_subcommand'):
         arg_specs.append(spec.standard_args['cd'])
 
     # create parser
     parser = SubcommandArgumentParser(
-        command_spec=command_spec,
-        config=config,
+        parse_spec=parse_spec,
         description=config.get('description'),
-        add_help=False,
         prog=config.get('base_command', '<program>'),
     )
 
@@ -193,7 +196,9 @@ def get_function_args(
 
     # special arg: cd
     # include cd kwarg if using using cd
-    if config['include_cd_subcommand'] and command_spec.get('special', {}).get('cd'):
+    if config['include_cd_subcommand'] and command_spec.get('special', {}).get(
+        'cd'
+    ):
         cd_arg_name = get_arg_name(spec.standard_args['cd'])
         function_args[cd_arg_name] = args.get(cd_arg_name)
 
