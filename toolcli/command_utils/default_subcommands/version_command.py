@@ -7,7 +7,7 @@ def get_command_spec() -> spec.CommandSpec:
     return {
         'f': version_command,
         'help': 'print cli version',
-        'special': {'parse_spec': True},
+        'special': {'include_parse_spec': True},
     }
 
 

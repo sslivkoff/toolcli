@@ -9,7 +9,7 @@ def get_command_spec() -> toolcli.CommandSpec:
         'f': help_command,
         'help': 'output help',
         'special': {
-            'parse_spec': True,
+            'include_parse_spec': True,
         },
     }
 

@@ -42,48 +42,55 @@ def run_cli(
     )
 
     # execute command_spec and middlewares
-    _execute(parse_spec=parse_spec, args=args)
+    execute(parse_spec=parse_spec, args=args)
 
 
-def _execute(parse_spec: spec.ParseSpec, args: spec.ParsedArgs) -> None:
+def execute(parse_spec: spec.ParseSpec, args: spec.ParsedArgs) -> None:
 
     # execute pre middleware
     config = parse_spec['config']
     if config.get('pre_middlewares') is not None:
         _execute_middlewares(config['pre_middlewares'], parse_spec, args)
 
-    # remove cd arg if not using cd
-    command_spec = parse_spec['command_spec']
-    if config['include_cd'] and not command_spec.get('special', {}).get('cd'):
-        cd_arg_name = spec.standard_args['cd']['name']
-        if isinstance(cd_arg_name, str):
-            args.pop(cd_arg_name.strip('-'))
-        else:
-            raise Exception('multiple names for cd arg')
+    # gather function args
+    function_args = parsing.get_function_args(parse_spec, args)
 
     # execute command
-    command_function = resolve_function(command_spec['f'])
-    debug = config.get('include_debug_option') and args.get('debug')
-    if not inspect.iscoroutinefunction(command_function):
-        if not debug:
-            command_function(**args)
-        else:
-            try:
-                command_function(**args)
-            except Exception:
-                _enter_debugger()
-    else:
-        if not debug:
-            asyncio.run(command_function(**args))
-        else:
-            try:
-                asyncio.run(command_function(**args))
-            except Exception:
-                _enter_debugger()
+    command_function = resolve_function(parse_spec['command_spec']['f'])
+    debug = config.get('include_debug_arg') and args.get('debug')
+    _execute_function(
+        function=command_function,
+        args=function_args,
+        debug=debug,
+    )
 
     # execute post middleware
     if config.get('post_middlewares') is not None:
         _execute_middlewares(config['post_middlewares'], parse_spec, args)
+
+
+def _execute_function(function, args, debug):
+
+    if not inspect.iscoroutinefunction(function):
+
+        # execute as normal function
+        if not debug:
+            function(**args)
+        else:
+            try:
+                function(**args)
+            except Exception:
+                _enter_debugger()
+    else:
+
+        # execute as coroutine
+        if not debug:
+            asyncio.run(function(**args))
+        else:
+            try:
+                asyncio.run(function(**args))
+            except Exception:
+                _enter_debugger()
 
 
 def resolve_function(

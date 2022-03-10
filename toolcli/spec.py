@@ -35,6 +35,7 @@ class ArgSpec(TypedDict, total=False):
     # special options
     name: typing.Union[str, typing.Sequence[str]]
     completer: typing.Callable
+    internal: typing.Optional[bool]
     #
     # standard argparse options
     action: typing.Optional[typing.Union[NamedAction, argparse.Action]]
@@ -94,15 +95,15 @@ MiddlewareSpecs = typing.List['MiddlewareSpec']
 
 
 class CLIConfig(TypedDict, total=False):
+    base_command: str
     description: str
+    version: str
     common_args: list[ArgSpec]
     default_command_sequence: CommandSequence
     command_sequence_aliases: dict[CommandSequence, CommandSequence]
     sort_command_index: bool
     pre_middlewares: 'MiddlewareSpecs'
     post_middlewares: 'MiddlewareSpecs'
-    include_debug_arg: bool
-    include_help_arg: bool
     inject_parse_spec: bool
     arg_parse_mode: typing.Literal[
         None,
@@ -110,11 +111,15 @@ class CLIConfig(TypedDict, total=False):
         'intermixed',
         'known_intermixed',
     ]
-    include_cd: bool
-    include_version_subcommand: bool
+    #
+    # subcommands
+    include_cd_subcommand: bool
     include_help_subcommand: bool
-    version: str
-    base_command: str
+    include_version_subcommand: bool
+    #
+    # standard args
+    include_debug_arg: bool
+    include_help_arg: bool
 
 
 default_config: CLIConfig = {
@@ -123,9 +128,23 @@ default_config: CLIConfig = {
 
 
 standard_args: dict[str, ArgSpec] = {
-    'debug': {'name': ['--debug', '-d'], 'action': 'store_true'},
-    'help': {'name': '--help', 'action': 'store_true'},
-    'cd': {'name': '--new_dir_tempfile'},
+    'debug': {
+        'name': '--debug',
+        'help': 'enter debugger if an error occurs',
+        'action': 'store_true',
+        'internal': True,
+    },
+    'help': {
+        'name': '--help',
+        'help': 'output help message',
+        'action': 'store_true',
+        'internal': True,
+    },
+    'cd': {
+        'name': '--new_dir_tempfile',
+        'help': 'used internally by cd command to track destination dir',
+        'internal': True,
+    },
 }
 
 

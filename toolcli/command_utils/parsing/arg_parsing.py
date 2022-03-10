@@ -22,6 +22,7 @@ def parse_args(
     config: typing.Optional[spec.CLIConfig] = None,
     parse_spec: typing.Optional[spec.ParseSpec] = None,
 ) -> spec.ParsedArgs:
+    """parse args according to command spec"""
 
     if args is not None:
         return dict(args)
@@ -61,11 +62,13 @@ def parse_raw_command(
         arg_specs.append(spec.standard_args['debug'])
     if config.get('include_help_arg'):
         arg_specs.append(spec.standard_args['help'])
-    if config.get('include_cd'):
+    if config.get('include_cd_subcommand'):
         arg_specs.append(spec.standard_args['cd'])
 
     # add arguments
     for arg_spec in arg_specs:
+
+        # get name args
         name = arg_spec.get('name')
         if isinstance(name, str):
             name_args = [name]
@@ -73,10 +76,15 @@ def parse_raw_command(
             name_args = name
         else:
             raise Exception('unknown name format: ' + str(name))
+
+        # remove special options
         kwargs = copy.copy(arg_spec)
         kwargs.pop('name')
-        if 'completer' in kwargs:
-            kwargs.pop('completer')
+        for key in ['name', 'completer', 'internal']:
+            if key in kwargs:
+                kwargs.pop(key)
+
+        # add argument to parser
         kwargs = typing.cast(
             spec.ArgSpec, {k: v for k, v in kwargs.items() if v is not None}
         )
@@ -106,12 +114,87 @@ def parse_raw_command(
 
     parsed_args = vars(args)
 
-    if config.get('inject_parse_spec') or command_spec.get('special', {}).get(
-        'parse_spec'
-    ):
+    if command_spec.get('special', {}).get('parse_spec'):
         if 'parse_spec' in parsed_args:
             raise Exception('key collision: cli')
         parsed_args['parse_spec'] = parse_spec
 
     return parsed_args
+
+
+def get_arg_name(arg_spec: spec.ArgSpec) -> str:
+    """get name of an argument according to an ArgSpec"""
+
+    if isinstance(arg_spec['name'], str):
+        return arg_spec['name'].strip('-')
+    else:
+        for name in arg_spec['name']:
+            if name[0] != '-' or name.startswith('--'):
+                return name.strip('-')
+        else:
+            raise Exception('could not determine argument name')
+
+
+def is_arg_optional(arg_spec: spec.ArgSpec) -> bool:
+    """return whether arg is optional"""
+
+    if arg_spec.get('required'):
+        return False
+    else:
+        if isinstance(arg_spec['name'], str) and arg_spec['name'].startswith(
+            '-'
+        ):
+            return True
+        else:
+            return all(name.startswith('-') for name in arg_spec['name'])
+
+
+def get_function_args(
+    parse_spec: spec.ParseSpec, args: dict[typing.Any, typing.Any]
+) -> dict[typing.Any, typing.Any]:
+    """extract subset of parsed cli args that are passed to command function"""
+
+    config = parse_spec['config']
+    command_spec = parse_spec['command_spec']
+    special = command_spec.get('special', {})
+
+    # build function kwargs
+    function_args = {}
+    for arg_spec in command_spec.get('args', []):
+        name = get_arg_name(arg_spec)
+
+        if arg_spec.get('internal'):
+            # skip special args
+            continue
+
+        elif name in args:
+            # add argument if it is specified in args
+            function_args[name] = args[name]
+
+        elif is_arg_optional(arg_spec):
+            # add default value if argument is optional
+            if 'default' in arg_spec:
+                function_args[name] = arg_spec['default']
+            elif arg_spec.get('action') == 'store_true':
+                function_args[name] = False
+            elif arg_spec.get('action') == 'store_false':
+                function_args[name] = True
+            else:
+                function_args[name] = None
+
+        else:
+            raise Exception('must specify arg: ' + str(name))
+
+    # special arg: cd
+    # include cd kwarg if using using cd
+    if config['include_cd_subcommand'] and command_spec.get('special', {}).get('cd'):
+        cd_arg_name = get_arg_name(spec.standard_args['cd'])
+        function_args[cd_arg_name] = args.get(cd_arg_name)
+
+    # special arg: parse_spec
+    # include parse spec
+    if special.get('include_parse_spec'):
+        function_args['parse_spec'] = parse_spec
+
+    return function_args
 
