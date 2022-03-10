@@ -8,8 +8,13 @@ from toolcli import spec
 
 
 class SubcommandArgumentParser(argparse.ArgumentParser):
-    def print_usage(self, file=None):
-        print('USAGE')
+    def __init__(self, command_spec, config, **kwargs):
+        self.config = config
+        self.command_spec = command_spec
+        super().__init__(**kwargs)
+
+    # def print_usage(self, file=None):
+    #     print('USAGE')
 
     def print_help(self, file=None):
         print('HELP')
@@ -48,13 +53,6 @@ def parse_raw_command(
     if config is None:
         config = spec.build_config(config)
 
-    # create parser
-    parser = SubcommandArgumentParser(
-        description=config.get('description'),
-        add_help=False,
-        prog=config.get('base_command', '<program>'),
-    )
-
     # gather arg specs
     arg_specs = command_spec.get('args', [])
     arg_specs += config.get('common_args', [])
@@ -64,6 +62,15 @@ def parse_raw_command(
         arg_specs.append(spec.standard_args['help'])
     if config.get('include_cd_subcommand'):
         arg_specs.append(spec.standard_args['cd'])
+
+    # create parser
+    parser = SubcommandArgumentParser(
+        command_spec=command_spec,
+        config=config,
+        description=config.get('description'),
+        add_help=False,
+        prog=config.get('base_command', '<program>'),
+    )
 
     # add arguments
     for arg_spec in arg_specs:
