@@ -80,9 +80,8 @@ def parse_raw_command(
         # remove special options
         kwargs = copy.copy(arg_spec)
         kwargs.pop('name')
-        for key in ['name', 'completer', 'internal']:
-            if key in kwargs:
-                kwargs.pop(key)
+        kwargs.pop('completer', None)
+        kwargs.pop('internal', None)
 
         # add argument to parser
         kwargs = typing.cast(
