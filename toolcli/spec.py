@@ -95,33 +95,37 @@ MiddlewareSpecs = typing.List['MiddlewareSpec']
 
 
 class CLIConfig(TypedDict, total=False):
+    #
+    # arg parse
     base_command: str
     description: str
     version: str
-    common_args: list[ArgSpec]
-    default_command_sequence: CommandSequence
-    command_sequence_aliases: dict[CommandSequence, CommandSequence]
-    sort_command_index: bool
-    pre_middlewares: 'MiddlewareSpecs'
-    post_middlewares: 'MiddlewareSpecs'
-    inject_parse_spec: bool
     arg_parse_mode: typing.Literal[
         None,
         'known',
         'intermixed',
         'known_intermixed',
     ]
+    #
+    # toolcli
+    common_args: list[ArgSpec]
+    default_command_sequence: CommandSequence
+    command_sequence_aliases: dict[CommandSequence, CommandSequence]
+    sort_command_index: bool
+    #
+    # middleware
+    pre_middlewares: 'MiddlewareSpecs'
+    post_middlewares: 'MiddlewareSpecs'
+    #
+    # default subcommands
+    include_cd_subcommand: bool
     cd_dir_getter: typing.Callable[[str], str]
     cd_dir_help: dict[str, str]
-    #
-    # subcommands
-    include_cd_subcommand: bool
     include_help_subcommand: bool
     include_version_subcommand: bool
     #
     # standard args
     include_debug_arg: bool
-    include_help_arg: bool
 
 
 default_config: CLIConfig = {
