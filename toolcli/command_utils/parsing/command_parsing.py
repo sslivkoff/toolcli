@@ -44,6 +44,15 @@ def build_parse_spec(
                 ('help',)
             ] = 'toolcli.command_utils.default_subcommands.help_command'
 
+        if (
+            config.get('include_cd_subcommand')
+            and ('cd',) not in command_index
+        ):
+            command_index = copy.copy(command_index)
+            command_index[
+                ('cd',)
+            ] = 'toolcli.command_utils.default_subcommands.cd_command'
+
         if raw_command is None:
             raw_command = sys.argv[1:]
 
@@ -55,7 +64,7 @@ def build_parse_spec(
                 config=config,
             )
 
-        # remove command sequence
+        # remove command sequence from raw command
         if isinstance(raw_command, str):
             raw_command = [
                 token.strip() for token in raw_command.split(' ') if token != ''

@@ -111,6 +111,8 @@ class CLIConfig(TypedDict, total=False):
         'intermixed',
         'known_intermixed',
     ]
+    cd_dir_getter: typing.Callable[[str], str]
+    cd_dir_help: dict[str, str]
     #
     # subcommands
     include_cd_subcommand: bool
