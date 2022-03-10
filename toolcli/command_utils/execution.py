@@ -13,15 +13,27 @@ from . import parsing
 
 def run_cli(
     raw_command: typing.Optional[spec.RawCommand] = None,
-    command_index: typing.Optional[spec.CommandIndex] = None,
     command_sequence: typing.Optional[spec.CommandSequence] = None,
+    command_index: typing.Optional[spec.CommandIndex] = None,
     command_spec: typing.Optional[spec.CommandSpec] = None,
+    args: typing.Optional[spec.ParsedArgs] = None,
     config: typing.Optional[spec.CLIConfig] = None,
-    args: typing.Optional[dict[str, typing.Any]] = None,
 ) -> None:
+    """run cli
+
+    Requires at least one of the following sets of arguments:
+    - {raw_command, command_index}
+    - {args, command_sequence, command_index}
+    - {raw_command, command_spec}
+    - {args, command_spec}
+    """
 
     # create config
     config = spec.create_config(config)
+
+    # get raw command
+    if raw_command is None and command_sequence is None:
+        raw_command = sys.argv[1:]
 
     # create parse spec
     parse_spec = parsing.create_parse_spec(
@@ -33,13 +45,13 @@ def run_cli(
     )
 
     # parse args
-    args = parsing.parse_args(
-        raw_command=parse_spec['raw_command'],
-        command_spec=parse_spec['command_spec'],
-        config=config,
-        parse_spec=parse_spec,
-        args=args,
-    )
+    if args is None:
+        if raw_command is None:
+            raise Exception('must specify raw_command or args')
+        args = parsing.parse_raw_command(
+            raw_command=raw_command,
+            parse_spec=parse_spec,
+        )
 
     # execute command_spec and middlewares
     execute_parsed_command(parse_spec=parse_spec, args=args)

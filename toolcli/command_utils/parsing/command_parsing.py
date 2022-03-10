@@ -26,34 +26,20 @@ def create_parse_spec(
             raise Exception('must specify command_spec or command_index')
         command_index = _add_default_subcommands(command_index, config)
 
-        # get raw command
-        if raw_command is None:
-            raw_command = sys.argv[1:]
-
         # get command sequence
         if command_sequence is None:
+            if raw_command is None:
+                raise Exception('must specify command_sequence or raw_command')
             command_sequence = parse_command_sequence(
                 raw_command=raw_command,
                 command_index=command_index,
                 config=config,
             )
 
-        # remove command sequence from raw command
-        if isinstance(raw_command, str):
-            raw_command = [
-                token.strip() for token in raw_command.split(' ') if token != ''
-            ]
-        raw_command = list(raw_command)
-        for token in command_sequence:
-            if token in raw_command:
-                raw_command.pop(raw_command.index(token))
-            else:
-                break
-
+        # resolve command spec
         command_spec = resolve_command_spec(command_index[command_sequence])
 
     parse_spec: spec.ParseSpec = {
-        'raw_command': raw_command,
         'command_index': command_index,
         'command_sequence': command_sequence,
         'command_spec': command_spec,

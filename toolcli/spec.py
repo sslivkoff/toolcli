@@ -76,7 +76,6 @@ RawCommand = typing.Union[str, typing.List[str]]
 
 
 class ParseSpec(TypedDict):
-    raw_command: typing.Optional[RawCommand]
     command_index: typing.Optional[CommandIndex]
     command_sequence: typing.Optional[CommandSequence]
     command_spec: CommandSpec

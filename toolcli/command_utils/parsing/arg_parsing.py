@@ -33,40 +33,17 @@ class SubcommandArgumentParser(argparse.ArgumentParser):
             help_utils.print_subcommand_help(self.parse_spec)
 
 
-def parse_args(
-    args: typing.Optional[spec.ParsedArgs],
-    parse_spec: spec.ParseSpec,
-    raw_command: typing.Optional[spec.RawCommand],
-    command_spec: spec.CommandSpec,
-    config: typing.Optional[spec.CLIConfig] = None,
-) -> spec.ParsedArgs:
-    """parse args according to command spec"""
-
-    if args is not None:
-        return dict(args)
-    else:
-        if raw_command is None:
-            raise Exception('must specify raw_command or args')
-        return parse_raw_command(
-            raw_command=raw_command,
-            command_spec=command_spec,
-            config=config,
-            parse_spec=parse_spec,
-        )
-
-
 def parse_raw_command(
-    raw_command: spec.RawCommand,
-    parse_spec: spec.ParseSpec,
-    command_spec: spec.CommandSpec,
-    config: typing.Optional[spec.CLIConfig] = None,
+    raw_command: spec.RawCommand, parse_spec: spec.ParseSpec
 ) -> spec.ParsedArgs:
     """parse command args from raw_command according to command_spec"""
 
+    config = parse_spec.get('config')
     if config is None:
         config = spec.create_config(config)
 
     # gather arg specs
+    command_spec = parse_spec['command_spec']
     arg_specs = command_spec.get('args', [])
     arg_specs += config.get('common_args', [])
     if config.get('include_debug_arg'):
@@ -104,6 +81,20 @@ def parse_raw_command(
             spec.ArgSpec, {k: v for k, v in kwargs.items() if v is not None}
         )
         parser.add_argument(*name_args, **kwargs)  # type: ignore
+
+    # remove command sequence from raw command
+    if isinstance(raw_command, str):
+        raw_command = [
+            token.strip() for token in raw_command.split(' ') if token != ''
+        ]
+    raw_command = list(raw_command)
+    command_sequence = parse_spec.get('command_sequence')
+    if command_sequence is not None:
+        for token in command_sequence:
+            if token in raw_command:
+                raw_command.pop(raw_command.index(token))
+            else:
+                break
 
     if isinstance(raw_command, str):
         raw_args = [arg.strip() for arg in raw_command.split(' ')]
