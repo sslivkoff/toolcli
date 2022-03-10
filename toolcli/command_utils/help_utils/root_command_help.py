@@ -3,7 +3,7 @@ import tooltable  # type: ignore
 import toolcli
 
 
-def print_root_command_help(parse_spec):
+def print_root_command_help(parse_spec: toolcli.ParseSpec) -> None:
 
     config = parse_spec['config']
     command_index = parse_spec['command_index']

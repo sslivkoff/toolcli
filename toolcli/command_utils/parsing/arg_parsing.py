@@ -10,17 +10,23 @@ from .. import help_utils
 
 class SubcommandArgumentParser(argparse.ArgumentParser):
     def __init__(
-        self,
-        parse_spec: typing.Optional[spec.ParseSpec],
-        **kwargs
+        self: SubcommandArgumentParser,
+        parse_spec: spec.ParseSpec,
+        **kwargs: typing.Any,
     ):
         self.parse_spec = parse_spec
         super().__init__(**kwargs)
 
-    def print_usage(self, file=None):
+    def print_usage(
+        self,
+        file: typing.Optional[typing.IO[str]] = None,
+    ) -> None:
         help_utils.print_subcommand_usage(self.parse_spec)
 
-    def print_help(self, file=None):
+    def print_help(
+        self,
+        file: typing.Optional[typing.IO[str]] = None,
+    ) -> None:
         if self.parse_spec['command_sequence'] == ():
             help_utils.print_root_command_help(self.parse_spec)
         else:
@@ -29,10 +35,10 @@ class SubcommandArgumentParser(argparse.ArgumentParser):
 
 def parse_args(
     args: typing.Optional[spec.ParsedArgs],
+    parse_spec: spec.ParseSpec,
     raw_command: typing.Optional[spec.RawCommand],
     command_spec: spec.CommandSpec,
     config: typing.Optional[spec.CLIConfig] = None,
-    parse_spec: typing.Optional[spec.ParseSpec] = None,
 ) -> spec.ParsedArgs:
     """parse args according to command spec"""
 
@@ -51,9 +57,9 @@ def parse_args(
 
 def parse_raw_command(
     raw_command: spec.RawCommand,
+    parse_spec: spec.ParseSpec,
     command_spec: spec.CommandSpec,
     config: typing.Optional[spec.CLIConfig] = None,
-    parse_spec: typing.Optional[spec.ParseSpec] = None,
 ) -> spec.ParsedArgs:
     """parse command args from raw_command according to command_spec"""
 

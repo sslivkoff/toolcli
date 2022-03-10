@@ -57,7 +57,7 @@ def execute(parse_spec: spec.ParseSpec, args: spec.ParsedArgs) -> None:
 
     # execute command
     command_function = resolve_function(parse_spec['command_spec']['f'])
-    debug = config.get('include_debug_arg') and args.get('debug')
+    debug = bool(config.get('include_debug_arg') and args.get('debug'))
     _execute_function(
         function=command_function,
         args=function_args,
@@ -69,7 +69,9 @@ def execute(parse_spec: spec.ParseSpec, args: spec.ParsedArgs) -> None:
         _execute_middlewares(config['post_middlewares'], parse_spec, args)
 
 
-def _execute_function(function, args, debug):
+def _execute_function(
+    function: typing.Callable, args: dict, debug: bool
+) -> None:
 
     if not inspect.iscoroutinefunction(function):
 

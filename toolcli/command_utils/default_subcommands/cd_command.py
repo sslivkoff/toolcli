@@ -1,5 +1,7 @@
+import toolcli
 
-def get_command_spec():
+
+def get_command_spec() -> toolcli.CommandSpec:
     return {
         'f': cd_command,
         'args': [
@@ -10,7 +12,11 @@ def get_command_spec():
     }
 
 
-def cd_command(dirname, new_dir_tempfile, parse_spec):
+def cd_command(
+    dirname: str,
+    new_dir_tempfile: str,
+    parse_spec: toolcli.ParseSpec,
+) -> None:
 
     # get path
     getter = parse_spec['config'].get('cd_dir_getter')
