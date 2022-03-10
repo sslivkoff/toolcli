@@ -23,6 +23,8 @@ def print_root_command_help(parse_spec):
     if command_index is not None:
         rows = []
         for command_sequence, command_spec_spec in command_index.items():
+            if len(command_sequence) == 0:
+                continue
             command_spec = toolcli.resolve_command_spec(command_spec_spec)
             row = []
             row.append(' '.join(command_sequence))
