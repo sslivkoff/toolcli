@@ -65,7 +65,7 @@ def print_subcommand_help(parse_spec: toolcli.ParseSpec) -> None:
     # print arg info
     arg_names: list[str] = []
     arg_helps: list[str] = []
-    for arg_spec in command_spec['args']:
+    for arg_spec in command_spec.get('args', []):
 
         # skip internal args
         if arg_spec.get('internal'):
