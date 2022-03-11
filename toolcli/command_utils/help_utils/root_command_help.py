@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import tooltable  # type: ignore
-
 import toolcli
 
 
@@ -15,7 +13,7 @@ def print_root_command_help(parse_spec: toolcli.ParseSpec) -> None:
     if style_theme is None:
         style_theme = {}
     console = rich.console.Console(
-        theme=rich.theme.Theme(style_theme, inherit=False)
+        theme=rich.theme.Theme(style_theme, inherit=False)  # type: ignore
     )
 
     config = parse_spec['config']
@@ -48,7 +46,6 @@ def print_root_command_help(parse_spec: toolcli.ParseSpec) -> None:
             if len(command_sequence) == 0:
                 continue
             command_spec = toolcli.resolve_command_spec(command_spec_spec)
-            row = []
             subcommands.append(' '.join(command_sequence))
             subcommand_help = command_spec.get('help', '')
             subcommand_help = subcommand_help.split('\n')[0]

@@ -17,7 +17,7 @@ def print_subcommand_usage(
     if style_theme is None:
         style_theme = {}
     console = rich.console.Console(
-        theme=rich.theme.Theme(style_theme, inherit=False)
+        theme=rich.theme.Theme(style_theme, inherit=False)  # type: ignore
     )
 
     config = parse_spec['config']
@@ -60,9 +60,8 @@ def print_subcommand_usage(
 
 
 def get_arg_metavar(arg_spec: toolcli.ArgSpec) -> str:
-    if 'metavar' in arg_spec:
-        metavar = arg_spec['metavar']
-    else:
+    metavar = arg_spec.get('metavar')
+    if metavar is None:
         metavar = parsing.get_arg_name(arg_spec).upper()
 
     metavar = metavar.replace('-', '_')
@@ -80,7 +79,7 @@ def print_subcommand_help(parse_spec: toolcli.ParseSpec) -> None:
     if style_theme is None:
         style_theme = {}
     console = rich.console.Console(
-        theme=rich.theme.Theme(style_theme, inherit=False)
+        theme=rich.theme.Theme(style_theme, inherit=False)  # type: ignore
     )
 
     command_spec = parse_spec['command_spec']
