@@ -9,6 +9,14 @@ from typing_extensions import TypedDict
 # # types
 #
 
+
+class StyleTheme(TypedDict, total=False):
+    comment: str
+    description: str
+    option: str
+    metavar: str
+
+
 ModuleReference = typing.Union[str, types.ModuleType]
 FunctionReference = typing.Union[
     typing.Callable,
@@ -111,6 +119,7 @@ class CLIConfig(TypedDict, total=False):
     default_command_sequence: CommandSequence
     command_sequence_aliases: dict[CommandSequence, CommandSequence]
     sort_command_index: bool
+    style_theme: StyleTheme
     #
     # middleware
     pre_middlewares: 'MiddlewareSpecs'

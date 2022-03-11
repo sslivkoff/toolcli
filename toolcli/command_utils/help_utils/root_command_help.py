@@ -8,43 +8,62 @@ import toolcli
 def print_root_command_help(parse_spec: toolcli.ParseSpec) -> None:
     """print help message for a root command"""
 
+    import rich.console
+    import rich.theme
+
+    style_theme = parse_spec['config'].get('style_theme')
+    if style_theme is None:
+        style_theme = {}
+    console = rich.console.Console(
+        theme=rich.theme.Theme(style_theme, inherit=False)
+    )
+
     config = parse_spec['config']
     command_index = parse_spec['command_index']
     base_command = config.get('base_command', '<base-command>')
 
-    print('usage: ' + base_command + ' <subcommand> [options]')
-    print()
-    if config.get('description') is not None:
-        print(config['description'])
-        print()
-    print(
-        'to view help about a specific subcommand run:\n    '
+    console.print(
+        '[title]usage:[/title]\n    '
+        + '[option]'
         + base_command
-        + ' <subcommand> -h'
+        + ' <subcommand> \[options][/option]'
+    )
+    print()
+    console.print('[title]description:[/title]')
+    if config.get('description') is not None:
+        lines = ['    ' + line for line in config['description'].split('\n')]
+        console.print('[description]' + '\n'.join(lines) + '[/description]')
+        print()
+    console.print(
+        '    [description]to view help about a specific subcommand run:\n'
+        + '        [option]'
+        + base_command
+        + ' <subcommand> -h[/option][/description]'
     )
 
     if command_index is not None:
-        rows = []
+        subcommands = []
+        helps = []
         for command_sequence, command_spec_spec in command_index.items():
             if len(command_sequence) == 0:
                 continue
             command_spec = toolcli.resolve_command_spec(command_spec_spec)
             row = []
-            row.append(' '.join(command_sequence))
+            subcommands.append(' '.join(command_sequence))
             subcommand_help = command_spec.get('help', '')
             subcommand_help = subcommand_help.split('\n')[0]
-            row.append(subcommand_help)
-            rows.append(row)
+            helps.append(subcommand_help)
 
         print()
-        print('available subcommands:')
+        console.print('[title]available subcommands:[/title]')
 
-        tooltable.print_table(
-            rows=rows,
-            headers=None,
-            vertical_border=' ',
-            cross_border=' ',
-            horizontal_border=' ',
-            indent='  ',
-        )
+        max_len_subcommand = max(len(subcommand) for subcommand in subcommands)
+        for sc in range(len(subcommands)):
+            console.print(
+                '    [option]'
+                + subcommands[sc].ljust(max_len_subcommand)
+                + '[/option]    [description]'
+                + helps[sc]
+                + '[/description]'
+            )
 
