@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import inspect
 import importlib
 import sys
@@ -103,6 +102,8 @@ def execute_command_spec(
                 _enter_debugger()
     else:
 
+        import asyncio
+
         # execute as coroutine
         if not debug:
             asyncio.run(function(**args))
@@ -166,6 +167,8 @@ def _execute_middlewares(
         f = resolve_function(middleware)
 
         if inspect.iscoroutinefunction(f):
+            import asyncio
+
             asyncio.run(f(parse_spec=parse_spec, args=args))
         else:
             f(parse_spec=parse_spec, args=args)

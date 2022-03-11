@@ -4,11 +4,11 @@ import toolcli
 def get_command_spec() -> toolcli.CommandSpec:
     return {
         'f': cd_command,
+        'help': 'change working directory to specified location',
         'args': [
             {'name': 'dirname'},
         ],
         'special': {'cd': True, 'include_parse_spec': True},
-        'help': 'change working directory to specified location',
     }
 
 

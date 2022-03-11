@@ -1,12 +1,7 @@
 from __future__ import annotations
 
-import json
 import os
-import subprocess
-import tempfile
 import typing
-
-from . import input_utils
 
 
 def get_editor_command(stdin_if_unset: bool = True) -> str:
@@ -20,6 +15,8 @@ def get_editor_command(stdin_if_unset: bool = True) -> str:
 
 
 def open_file_in_editor(path: str) -> None:
+    import subprocess
+
     editor_cmd = get_editor_command()
     if isinstance(path, str):
         cmd = [editor_cmd, path]
@@ -29,6 +26,8 @@ def open_file_in_editor(path: str) -> None:
 
 
 def open_tempfile_in_editor(initial_text: typing.Optional[str] = None) -> str:
+    import tempfile
+
     if initial_text is None:
         initial_text = ''
 
