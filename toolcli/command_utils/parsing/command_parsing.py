@@ -92,6 +92,10 @@ def _add_standard_subcommands(
             command_index[
                 ('cli', 'spec')
             ] = 'toolcli.command_utils.standard_subcommands.cli.spec_command'
+        if ('cli', 'theme') not in command_index:
+            command_index[
+                ('cli', 'theme')
+            ] = 'toolcli.command_utils.standard_subcommands.cli.theme_command'
 
     return command_index
 
