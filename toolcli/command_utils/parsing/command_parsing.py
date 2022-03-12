@@ -25,7 +25,7 @@ def create_parse_spec(
         # add default subcommands
         if command_index is None:
             raise Exception('must specify command_spec or command_index')
-        command_index = _add_default_subcommands(command_index, config)
+        command_index = _add_standard_subcommands(command_index, config)
 
         # get command sequence
         if command_sequence is None:
@@ -50,7 +50,7 @@ def create_parse_spec(
     return parse_spec
 
 
-def _add_default_subcommands(
+def _add_standard_subcommands(
     command_index: spec.CommandIndex, config: spec.CLIConfig
 ) -> spec.CommandIndex:
     """add default subcommands to command_index according to config"""
@@ -64,34 +64,34 @@ def _add_default_subcommands(
     ):
         command_index[
             ('version',)
-        ] = 'toolcli.command_utils.default_subcommands.version_command'
+        ] = 'toolcli.command_utils.standard_subcommands.version_command'
 
     # add help subcommand
     if config.get('include_help_subcommand') and ('help',) not in command_index:
         command_index[
             ('help',)
-        ] = 'toolcli.command_utils.default_subcommands.help_command'
+        ] = 'toolcli.command_utils.standard_subcommands.help_command'
 
     # add cd subcommand
     if config.get('include_cd_subcommand') and ('cd',) not in command_index:
         command_index[
             ('cd',)
-        ] = 'toolcli.command_utils.default_subcommands.cd_command'
+        ] = 'toolcli.command_utils.standard_subcommands.cd_command'
 
     # add cli subcommand
     if config.get('include_cli_subcommand'):
         if ('cli', 'index') not in command_index:
             command_index[
                 ('cli', 'index')
-            ] = 'toolcli.command_utils.default_subcommands.cli.index_command'
+            ] = 'toolcli.command_utils.standard_subcommands.cli.index_command'
         if ('cli', 'config') not in command_index:
             command_index[
                 ('cli', 'config')
-            ] = 'toolcli.command_utils.default_subcommands.cli.config_command'
+            ] = 'toolcli.command_utils.standard_subcommands.cli.config_command'
         if ('cli', 'spec') not in command_index:
             command_index[
                 ('cli', 'spec')
-            ] = 'toolcli.command_utils.default_subcommands.cli.spec_command'
+            ] = 'toolcli.command_utils.standard_subcommands.cli.spec_command'
 
     return command_index
 
