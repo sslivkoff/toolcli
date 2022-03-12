@@ -62,6 +62,7 @@ class ArgSpec(TypedDict, total=False):
 class SpecialCommandParams(TypedDict, total=False):
     cd: bool
     include_parse_spec: bool
+    hidden: bool
 
 
 class CommandSpec(TypedDict, total=False):

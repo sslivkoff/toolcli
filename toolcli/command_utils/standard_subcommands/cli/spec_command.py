@@ -12,6 +12,7 @@ def get_command_spec() -> toolcli.CommandSpec:
         ],
         'special': {
             'include_parse_spec': True,
+            'hidden': True,
         },
     }
 

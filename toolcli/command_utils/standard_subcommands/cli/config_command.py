@@ -9,6 +9,7 @@ def get_command_spec() -> toolcli.CommandSpec:
         'help': 'print cli config',
         'special': {
             'include_parse_spec': True,
+            'hidden': True,
         },
     }
 

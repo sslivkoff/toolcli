@@ -46,6 +46,8 @@ def print_root_command_help(parse_spec: toolcli.ParseSpec) -> None:
             if len(command_sequence) == 0:
                 continue
             command_spec = toolcli.resolve_command_spec(command_spec_spec)
+            if command_spec.get('special', {}).get('hidden'):
+                continue
             subcommands.append(' '.join(command_sequence))
             subcommand_help = command_spec.get('help', '')
             subcommand_help = subcommand_help.split('\n')[0]

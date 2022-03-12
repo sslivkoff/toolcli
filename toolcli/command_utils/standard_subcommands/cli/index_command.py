@@ -7,6 +7,7 @@ def get_command_spec() -> toolcli.CommandSpec:
         'help': 'print command_index of possible subcommands',
         'special': {
             'include_parse_spec': True,
+            'hidden': True,
         },
     }
 
