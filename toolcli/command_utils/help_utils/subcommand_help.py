@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+import typing
+
 import toolcli
 from .. import parsing
 
 
 def print_subcommand_usage(
     parse_spec: toolcli.ParseSpec,
-    indent=None,
+    indent: typing.Optional[str]=None,
 ) -> None:
     """print usage for a subcommand"""
 
