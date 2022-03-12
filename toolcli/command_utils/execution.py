@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import inspect
 import importlib
 import sys
 import typing
@@ -90,7 +89,7 @@ def execute_command_spec(
 
     function = resolve_function(command_spec['f'])
 
-    if not inspect.iscoroutinefunction(function):
+    if not isinstance(object, types.CoroutineType):
 
         # execute as normal function
         if not debug:
@@ -166,7 +165,7 @@ def _execute_middlewares(
     for middleware in middlewares:
         f = resolve_function(middleware)
 
-        if inspect.iscoroutinefunction(f):
+        if isinstance(object, types.CoroutineType):
             import asyncio
 
             asyncio.run(f(parse_spec=parse_spec, args=args))
