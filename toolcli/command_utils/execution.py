@@ -157,7 +157,7 @@ def _enter_debugger() -> None:
     print()
 
     try:
-        import ipdb
+        import ipdb  # type: ignore
 
         tb = typing.cast(types.TracebackType, tb)
         ipdb.post_mortem(tb)
