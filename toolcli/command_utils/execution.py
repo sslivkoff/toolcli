@@ -80,6 +80,18 @@ def execute_parsed_command(
         _execute_middlewares(config['post_middlewares'], parse_spec, args)
 
 
+def _iscoroutinefunction(function):
+    """lightweight version of inspect.iscoroutinefunction()"""
+
+    if not isinstance(function, types.FunctionType):
+        return False
+
+    # inspect.CO_COROUTINE
+    flag = 128
+
+    return bool(function.__code__.co_flags & flag)
+
+
 def execute_command_spec(
     command_spec: spec.CommandSpec,
     args: dict,
@@ -89,7 +101,7 @@ def execute_command_spec(
 
     function = resolve_function(command_spec['f'])
 
-    if not isinstance(object, types.CoroutineType):
+    if not _iscoroutinefunction(function):
 
         # execute as normal function
         if not debug:
@@ -165,7 +177,7 @@ def _execute_middlewares(
     for middleware in middlewares:
         f = resolve_function(middleware)
 
-        if isinstance(object, types.CoroutineType):
+        if _iscoroutinefunction(f):
             import asyncio
 
             asyncio.run(f(parse_spec=parse_spec, args=args))
