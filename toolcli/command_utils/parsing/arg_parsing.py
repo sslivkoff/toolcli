@@ -165,6 +165,7 @@ def get_function_args(
     function_args = {}
     for arg_spec in command_spec.get('args', []):
         name = get_arg_name(arg_spec)
+        name = name.replace('-', '_')
 
         if arg_spec.get('internal'):
             # skip special args
