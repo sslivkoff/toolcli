@@ -79,13 +79,19 @@ def _add_default_subcommands(
         ] = 'toolcli.command_utils.default_subcommands.cd_command'
 
     # add cli subcommand
-    if (
-        config.get('include_cli_subcommand')
-        and ('cli', 'index') not in command_index
-    ):
-        command_index[
-            ('cli', 'index')
-        ] = 'toolcli.command_utils.default_subcommands.cli.index_command'
+    if config.get('include_cli_subcommand'):
+        if ('cli', 'index') not in command_index:
+            command_index[
+                ('cli', 'index')
+            ] = 'toolcli.command_utils.default_subcommands.cli.index_command'
+        if ('cli', 'config') not in command_index:
+            command_index[
+                ('cli', 'config')
+            ] = 'toolcli.command_utils.default_subcommands.cli.config_command'
+        if ('cli', 'spec') not in command_index:
+            command_index[
+                ('cli', 'spec')
+            ] = 'toolcli.command_utils.default_subcommands.cli.spec_command'
 
     return command_index
 

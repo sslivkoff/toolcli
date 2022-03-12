@@ -4,6 +4,7 @@ import toolcli
 def get_command_spec() -> toolcli.CommandSpec:
     return {
         'f': cli_index_command,
+        'help': 'print command_index of possible subcommands',
         'special': {
             'include_parse_spec': True,
         },
