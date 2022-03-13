@@ -7,5 +7,5 @@ from .terminal_utils import *
 from .spec import *
 
 
-__version__ = '0.3.3'
+__version__ = '0.3.4'
 
