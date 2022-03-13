@@ -6,8 +6,10 @@ import toolcli
 def get_command_spec() -> toolcli.CommandSpec:
     return {
         'f': theme_command,
+        'help': 'display cli style theme',
         'special': {
             'include_parse_spec': True,
+            'hidden': True,
         },
     }
 
