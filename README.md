@@ -4,6 +4,8 @@
 
 the main usecase for `toolcli` is allowing many cli subcommands to be defined across many files in a performant way
 
+`toolcli` uses `argparse` under the hood, making it easy to transition from `argparse` to `toolcli` when a project is ready to scale to multiple subcommands or multiple files
+
 
 ## Features
 - lazy loading of files for fast startup times
