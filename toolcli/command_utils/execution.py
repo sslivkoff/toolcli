@@ -56,13 +56,15 @@ def run_cli(
 
 
 def execute_parsed_command(
-    parse_spec: spec.ParseSpec, args: spec.ParsedArgs
+    parse_spec: spec.ParseSpec,
+    args: spec.ParsedArgs,
+    middleware: bool = True,
 ) -> None:
     """execute parsed command with specified arguments"""
 
     # execute pre middleware
     config = parse_spec['config']
-    if config.get('pre_middlewares') is not None:
+    if middleware and config.get('pre_middlewares') is not None:
         _execute_middlewares(config['pre_middlewares'], parse_spec, args)
 
     # gather function args
@@ -76,7 +78,7 @@ def execute_parsed_command(
     )
 
     # execute post middleware
-    if config.get('post_middlewares') is not None:
+    if middleware and config.get('post_middlewares') is not None:
         _execute_middlewares(config['post_middlewares'], parse_spec, args)
 
 
@@ -142,6 +144,28 @@ def resolve_function(
         )
 
 
+def execute_other_command_sequence(
+    command_sequence: spec.CommandSequence,
+    parse_spec: spec.ParseSpec,
+    args: dict[str, typing.Any],
+    middleware: bool = False,
+) -> None:
+    """execute a command sequence from within another command function"""
+    command_index = parse_spec['command_index']
+    if command_index is None:
+        raise Exception('invalid command_index')
+    command_spec_reference = command_index[command_sequence]
+    command_spec = parsing.resolve_command_spec(command_spec_reference)
+    parse_spec = typing.cast(spec.ParseSpec, dict(parse_spec))
+    parse_spec['command_sequence'] = command_sequence
+    parse_spec['command_spec'] = command_spec
+    execute_parsed_command(
+        args=args,
+        parse_spec=parse_spec,
+        middleware=middleware,
+    )
+
+
 def _enter_debugger() -> None:
     """open debugger to most recent exception
 
@@ -183,23 +207,4 @@ def _execute_middlewares(
             asyncio.run(f(parse_spec=parse_spec, args=args))
         else:
             f(parse_spec=parse_spec, args=args)
-
-
-def execute_other_command_sequence(
-    command_sequence: spec.CommandSequence,
-    parse_spec: spec.ParseSpec,
-    args: dict[str, typing.Any],
-    debug: bool = False,
-) -> None:
-    """execute a command sequence from within another command function"""
-    command_index = parse_spec['command_index']
-    if command_index is None:
-        raise Exception('invalid command_index')
-    command_spec_reference = command_index[command_sequence]
-    command_spec = parsing.resolve_command_spec(command_spec_reference)
-    execute_command_spec(
-        command_spec=command_spec,
-        args=args,
-        debug=debug,
-    )
 
