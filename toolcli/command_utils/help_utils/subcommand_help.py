@@ -8,7 +8,7 @@ from .. import parsing
 
 def print_subcommand_usage(
     parse_spec: toolcli.ParseSpec,
-    indent: typing.Optional[str]=None,
+    indent: typing.Optional[str] = None,
 ) -> None:
     """print usage for a subcommand"""
 
@@ -132,4 +132,61 @@ def print_subcommand_help(parse_spec: toolcli.ParseSpec) -> None:
         console.print('[title]arguments:[/title]')
         for a in range(len(arg_names)):
             console.print('    ' + arg_names[a] + '    ' + arg_helps[a])
+
+    command_sequence = parse_spec['command_sequence']
+    command_index = parse_spec['command_index']
+    config = parse_spec['config']
+    base_command = config.get('base_command')
+    if base_command is None:
+        base_command = '<base_command>'
+    if command_sequence is not None and command_index is not None:
+        subsubcommands = []
+        descriptions = []
+        for other_sequence, other_reference in command_index.items():
+            if other_sequence == command_sequence:
+                continue
+            if other_sequence[: len(command_sequence)] == command_sequence:
+                subsubcommands.append(other_sequence[len(command_sequence) :])
+
+                command_spec = parsing.resolve_command_spec(other_reference)
+                description = command_spec.get('help')
+                if description is None:
+                    description = ''
+                descriptions.append(description)
+        if len(subsubcommands) > 0:
+            print()
+            print()
+            console.print('[title]usage of subcommands:[/title]')
+            console.print(
+                '    [option]'
+                + base_command
+                + ' '
+                + ' '.join(command_sequence)
+                + '[/option] [description]can also be used to invoke subcommands[/description]'
+            )
+            print()
+            console.print(
+                '    [description]to view help about a specific subcommand, run:[/description]'
+            )
+            console.print(
+                '        [option]'
+                + base_command
+                + ' '
+                + ' '.join(command_sequence)
+                + ' <subcommand> -h[/option]'
+            )
+            print()
+            max_length = max(
+                len(' '.join(subsubcommand)) for subsubcommand in subsubcommands
+            )
+            console.print('[title]available subcommands:[/title]')
+            for subsubcommand, description in zip(subsubcommands, descriptions):
+                subsubcommand = ' '.join(subsubcommand).ljust(max_length)
+                console.print(
+                    '    [option]'
+                    + subsubcommand
+                    + '[/option]    [description]'
+                    + description
+                    + '[/description]'
+                )
 
