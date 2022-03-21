@@ -164,8 +164,12 @@ def get_function_args(
     # build function kwargs
     function_args = {}
     for arg_spec in command_spec.get('args', []):
-        name = get_arg_name(arg_spec)
-        name = name.replace('-', '_')
+
+        if arg_spec.get('dest') is not None:
+            name = arg_spec['dest']
+        else:
+            name = get_arg_name(arg_spec)
+            name = name.replace('-', '_')
 
         if arg_spec.get('internal'):
             # skip special args
@@ -191,7 +195,7 @@ def get_function_args(
 
     # special arg: cd
     # include cd kwarg if using using cd
-    if config['include_cd_subcommand'] and command_spec.get('special', {}).get(
+    if config.get('include_cd_subcommand') and command_spec.get('special', {}).get(
         'cd'
     ):
         cd_arg_name = get_arg_name(spec.standard_args['cd'])
