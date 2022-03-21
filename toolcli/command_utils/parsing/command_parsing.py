@@ -100,6 +100,10 @@ def _add_standard_subcommands(
             command_index[
                 ('cli', 'annotate')
             ] = 'toolcli.command_utils.standard_subcommands.cli.annotate_command'
+        if ('cli', 'edit') not in command_index:
+            command_index[
+                ('cli', 'edit')
+            ] = 'toolcli.command_utils.standard_subcommands.cli.edit_command'
 
     return command_index
 
