@@ -4,6 +4,7 @@ import typing
 
 import toolcli
 from .. import parsing
+from .. import output_utils
 
 
 def print_subcommand_usage(
@@ -12,15 +13,7 @@ def print_subcommand_usage(
 ) -> None:
     """print usage for a subcommand"""
 
-    import rich.console
-    import rich.theme
-
-    style_theme = parse_spec['config'].get('style_theme')
-    if style_theme is None:
-        style_theme = {}
-    console = rich.console.Console(
-        theme=rich.theme.Theme(style_theme, inherit=False)  # type: ignore
-    )
+    console = output_utils.get_rich_console(parse_spec)
 
     config = parse_spec['config']
     command_sequence = parse_spec['command_sequence']
@@ -71,20 +64,37 @@ def get_arg_metavar(arg_spec: toolcli.ArgSpec) -> str:
     return metavar
 
 
+def print_cd_dirs(*, config=None, console=None, parse_spec=None, indent=None):
+    if indent is None:
+        indent = ''
+
+    if config is None:
+        if parse_spec is None:
+            raise Exception('must specify config or parse_spec')
+        config = parse_spec.get('config')
+    if console is None:
+        if parse_spec is None:
+            raise Exception('must specify console or parse_spec')
+        console = output_utils.get_rich_console(parse_spec)
+
+    console.print(
+        indent + '[description]available directories for cd:[/description]'
+    )
+    for key, value in config.get('cd_dir_help', {}).items():
+        console.print(
+            indent + '[title]-[/title]',
+            '[option]' + key + '[/option][title]:[/title]',
+            '[description]' + value + '[/description]',
+        )
+
+
 def print_subcommand_help(parse_spec: toolcli.ParseSpec) -> None:
     """print help for a subcommand"""
 
-    import rich.console
-    import rich.theme
-
-    style_theme = parse_spec['config'].get('style_theme')
-    if style_theme is None:
-        style_theme = {}
-    console = rich.console.Console(
-        theme=rich.theme.Theme(style_theme, inherit=False)  # type: ignore
-    )
+    console = output_utils.get_rich_console(parse_spec)
 
     command_spec = parse_spec['command_spec']
+    config = parse_spec.get('config')
 
     print_subcommand_usage(parse_spec, indent='    ')
 
@@ -97,6 +107,9 @@ def print_subcommand_help(parse_spec: toolcli.ParseSpec) -> None:
         lines = [indent + line for line in command_help.split('\n')]
         command_help = '\n'.join(lines)
         console.print('[description]' + command_help + '[/description]')
+    if command_spec.get('special', {}).get('cd'):
+        print()
+        print_cd_dirs(config=config, console=console, indent='    ')
 
     # print arg info
     arg_names: list[str] = []

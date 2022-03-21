@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import toolcli
+from toolcli.command_utils import help_utils
 
 
 def get_command_spec() -> toolcli.CommandSpec:
@@ -50,7 +51,13 @@ def cd_command(
     getter = parse_spec['config'].get('cd_dir_getter')
     if getter is None:
         raise Exception('must specify path getter')
-    path = getter(dirname)
+    try:
+        path = getter(dirname)
+    except Exception:
+        print('could not find path')
+        print()
+        help_utils.print_cd_dirs(parse_spec=parse_spec)
+        return
 
     # change pwd to path
     with open(new_dir_tempfile, 'w') as f:
