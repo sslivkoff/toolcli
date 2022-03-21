@@ -16,7 +16,7 @@ def get_command_spec() -> toolcli.CommandSpec:
                 'nargs': '+',
             },
         ],
-        'special': {'include_parse_spec': True},
+        'special': {'include_parse_spec': True, 'hidden': True},
     }
 
 
