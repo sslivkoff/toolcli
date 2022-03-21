@@ -96,6 +96,10 @@ def _add_standard_subcommands(
             command_index[
                 ('cli', 'theme')
             ] = 'toolcli.command_utils.standard_subcommands.cli.theme_command'
+        if ('cli', 'annotate') not in command_index:
+            command_index[
+                ('cli', 'annotate')
+            ] = 'toolcli.command_utils.standard_subcommands.cli.annotate_command'
 
     return command_index
 
