@@ -148,8 +148,11 @@ def print_subcommand_help(parse_spec: toolcli.ParseSpec) -> None:
             if other_sequence[: len(command_sequence)] == command_sequence:
                 subsubcommands.append(other_sequence[len(command_sequence) :])
 
-                command_spec = parsing.resolve_command_spec(other_reference)
-                description = command_spec.get('help')
+                try:
+                    command_spec = parsing.resolve_command_spec(other_reference)
+                except Exception:
+                    command_spec = {}
+                description = command_spec.get('help', '')
                 if description is None:
                     description = ''
                 descriptions.append(description)

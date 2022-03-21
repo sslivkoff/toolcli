@@ -45,7 +45,10 @@ def print_root_command_help(parse_spec: toolcli.ParseSpec) -> None:
         for command_sequence, command_spec_spec in command_index.items():
             if len(command_sequence) == 0:
                 continue
-            command_spec = toolcli.resolve_command_spec(command_spec_spec)
+            try:
+                command_spec = toolcli.resolve_command_spec(command_spec_spec)
+            except Exception:
+                command_spec = ''
             if command_spec.get('special', {}).get('hidden'):
                 continue
             subcommands.append(' '.join(command_sequence))
