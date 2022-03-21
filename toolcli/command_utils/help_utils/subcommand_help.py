@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import typing
+import types
 
 import toolcli
 from .. import parsing
@@ -104,9 +105,15 @@ def print_subcommand_help(parse_spec: toolcli.ParseSpec) -> None:
         console.print('[title]description:[/title]')
         indent = '    '
         command_help = command_spec['help']
-        lines = [indent + line for line in command_help.split('\n')]
-        command_help = '\n'.join(lines)
-        console.print('[description]' + command_help + '[/description]')
+        if isinstance(command_help, str):
+            help_str = command_help
+        elif isinstance(command_help, types.FunctionType):
+            help_str = command_help(parse_spec=parse_spec)
+        else:
+            help_str = ''
+        lines = [indent + line for line in help_str.split('\n')]
+        help_str = '\n'.join(lines)
+        console.print('[description]' + help_str + '[/description]')
     if command_spec.get('special', {}).get('cd'):
         print()
         print_cd_dirs(config=config, console=console, indent='    ')
@@ -165,8 +172,13 @@ def print_subcommand_help(parse_spec: toolcli.ParseSpec) -> None:
                     command_spec = parsing.resolve_command_spec(other_reference)
                 except Exception:
                     command_spec = {}
-                description = command_spec.get('help', '')
-                if description is None:
+
+                command_spec_help = command_spec.get('help')
+                if isinstance(command_spec_help, str):
+                    description = command_spec_help
+                elif isinstance(command_spec_help, types.FunctionType):
+                    description = command_spec_help(parse_spec)
+                else:
                     description = ''
                 descriptions.append(description)
         if len(subsubcommands) > 0:
@@ -197,10 +209,10 @@ def print_subcommand_help(parse_spec: toolcli.ParseSpec) -> None:
             )
             console.print('[title]available subcommands:[/title]')
             for subsubcommand, description in zip(subsubcommands, descriptions):
-                subsubcommand = ' '.join(subsubcommand).ljust(max_length)
+                subsubcommand_str: str = ' '.join(subsubcommand).ljust(max_length)
                 console.print(
                     '    [option]'
-                    + subsubcommand
+                    + subsubcommand_str
                     + '[/option]    [description]'
                     + description
                     + '[/description]'

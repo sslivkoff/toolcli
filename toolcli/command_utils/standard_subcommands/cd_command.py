@@ -4,10 +4,14 @@ import toolcli
 from toolcli.command_utils import help_utils
 
 
+def get_cd_help(parse_spec: toolcli.ParseSpec) -> str:
+    program_name = parse_spec.get('config', {}).get('base_command', 'PROGRAM')
+    return 'change working directory to ' + program_name + '-related location'
+
 def get_command_spec() -> toolcli.CommandSpec:
     return {
         'f': cd_command,
-        'help': 'change working directory to specified location',
+        'help': get_cd_help,
         'args': [
             {'name': 'dirname'},
         ],

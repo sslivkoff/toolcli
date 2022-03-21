@@ -20,7 +20,10 @@ def annotate_command_spec(command_spec: toolcli.CommandSpec) -> str:
         if arg.get('action') in ['store_true', 'store_false']:
             arg_type = 'bool'
         elif arg.get('type') is not None:
-            arg_type = arg['type'].__name__
+            type_object = arg['type']
+            if type_object is None:
+                raise Exception('could not determine type')
+            arg_type = type_object.__name__
         elif arg.get('nargs') is not None and arg.get('nargs') != 1:
             arg_type = 'typing.Sequence[str]'
         else:

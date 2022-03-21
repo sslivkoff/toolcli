@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib
+import types
 
 import toolcli
 
@@ -30,10 +31,16 @@ def spec_command(
         if reference is None:
             print('could not find spec for given command sequence')
         else:
-            module = importlib.import_module(reference)
+            if isinstance(reference, str):
+                module = importlib.import_module(reference)
+            elif isinstance(reference, types.ModuleType):
+                module = reference
+            else:
+                raise Exception('could not determine path where command is defined')
+
             if hasattr(module, '__path__'):
                 path = module.__path__[0]
-            elif hasattr(module, '__file__'):
+            elif hasattr(module, '__file__') and module.__file__ is not None:
                 path = module.__file__
             else:
                 raise Exception('could not determine module path')

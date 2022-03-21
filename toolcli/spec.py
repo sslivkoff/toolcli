@@ -67,7 +67,9 @@ class SpecialCommandParams(TypedDict, total=False):
 
 class CommandSpec(TypedDict, total=False):
     f: typing.Callable[..., typing.Any]
-    help: str
+    # because mypy cannot express cyclic types...
+    # help: typing.Union[str, typing.Callable[['ParseSpec'], str]]
+    help: typing.Union[str, typing.Callable[[typing.Any], str]]
     args: list[ArgSpec]
     special: SpecialCommandParams
 

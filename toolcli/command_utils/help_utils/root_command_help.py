@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import types
+import typing
+
 import toolcli
 
 
@@ -48,13 +51,19 @@ def print_root_command_help(parse_spec: toolcli.ParseSpec) -> None:
             try:
                 command_spec = toolcli.resolve_command_spec(command_spec_spec)
             except Exception:
-                command_spec = ''
+                command_spec = {}
             if command_spec.get('special', {}).get('hidden'):
                 continue
             subcommands.append(' '.join(command_sequence))
             subcommand_help = command_spec.get('help', '')
-            subcommand_help = subcommand_help.split('\n')[0]
-            helps.append(subcommand_help)
+            if isinstance(subcommand_help, str):
+                help_str = subcommand_help
+            elif isinstance(subcommand_help, types.FunctionType):
+                help_str = subcommand_help(parse_spec=parse_spec)
+            else:
+                help_str = ''
+            help_str = help_str.split('\n')[0]
+            helps.append(help_str)
 
         print()
         console.print('[title]available subcommands:[/title]')

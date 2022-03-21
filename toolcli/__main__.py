@@ -1,6 +1,6 @@
 import toolcli
 
-command_index = {
+command_index: toolcli.CommandIndex = {
 }
 
 toolcli.run_cli(
