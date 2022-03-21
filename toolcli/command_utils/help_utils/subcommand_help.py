@@ -21,6 +21,8 @@ def print_subcommand_usage(
     command_spec = parse_spec['command_spec']
 
     required_args = []
+    n_explicit_args = 0
+    n_non_hidden_args = 0
     for arg_spec in command_spec.get('args', []):
         name = arg_spec['name']
         if isinstance(name, str) and not name.startswith('-'):
@@ -29,6 +31,7 @@ def print_subcommand_usage(
                 metavar = '[' + metavar + ']'
             metavar = '[metavar]' + metavar + '[metavar]'
             required_args.append(metavar)
+            n_explicit_args += 1
 
         elif arg_spec.get('required'):
             if isinstance(name, str):
@@ -41,12 +44,18 @@ def print_subcommand_usage(
                 else:
                     flag = name[0]
             required_args.append(flag + ' ' + get_arg_metavar(arg_spec))
+            n_explicit_args += 1
+
+        if not arg_spec.get('internal', False):
+            n_non_hidden_args += 1
 
     usage_str = '[option]' + config['base_command']
     if command_sequence is not None:
         usage_str += ' ' + ' '.join(command_sequence)
     usage_str += ' ' + ' '.join(required_args)
-    usage_str += ' \[options][/option]'
+    if n_explicit_args < n_non_hidden_args:
+        usage_str += ' \[options]'
+    usage_str += '[/option]'
 
     if indent:
         sep = '\n' + indent
