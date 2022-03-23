@@ -165,11 +165,11 @@ def get_function_args(
     function_args = {}
     for arg_spec in command_spec.get('args', []):
 
+        name = get_arg_name(arg_spec)
         if arg_spec.get('dest') is not None:
-            name = arg_spec['dest']
+            dest_name = arg_spec['dest']
         else:
-            name = get_arg_name(arg_spec)
-            name = name.replace('-', '_')
+            dest_name = name.replace('-', '_')
 
         if arg_spec.get('internal'):
             # skip special args
@@ -177,18 +177,22 @@ def get_function_args(
 
         elif name in args:
             # add argument if it is specified in args
-            function_args[name] = args[name]
+            function_args[dest_name] = args[name]
+
+        elif dest_name in args:
+            # add argument if it is specified in args
+            function_args[dest_name] = args[dest_name]
 
         elif is_arg_optional(arg_spec):
             # add default value if argument is optional
             if 'default' in arg_spec:
-                function_args[name] = arg_spec['default']
+                function_args[dest_name] = arg_spec['default']
             elif arg_spec.get('action') == 'store_true':
-                function_args[name] = False
+                function_args[dest_name] = False
             elif arg_spec.get('action') == 'store_false':
-                function_args[name] = True
+                function_args[dest_name] = True
             else:
-                function_args[name] = None
+                function_args[dest_name] = None
 
         else:
             raise Exception('must specify arg: ' + str(name))
