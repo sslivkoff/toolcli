@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import types
 import typing
-from typing_extensions import TypedDict
+from typing_extensions import TypedDict, Literal
 
 #
 # # types
@@ -24,7 +24,7 @@ FunctionReference = typing.Union[
 ]
 
 
-NamedAction = typing.Literal[
+NamedAction = Literal[
     'store',
     'store_const',
     'store_true',
@@ -47,7 +47,7 @@ class ArgSpec(TypedDict, total=False):
     #
     # standard argparse options
     action: typing.Optional[typing.Union[NamedAction, argparse.Action]]
-    nargs: typing.Optional[typing.Union[int, typing.Literal['?', '*', '+']]]
+    nargs: typing.Optional[typing.Union[int, Literal['?', '*', '+']]]
     const: typing.Optional[typing.Any]
     default: typing.Optional[typing.Any]
     type: typing.Optional[typing.Any]
@@ -63,6 +63,7 @@ class SpecialCommandParams(TypedDict, total=False):
     cd: bool
     include_parse_spec: bool
     hidden: bool
+    inject: typing.Sequence[str]
 
 
 class CommandSpec(TypedDict, total=False):
@@ -110,7 +111,7 @@ class CLIConfig(TypedDict, total=False):
     base_command: str
     description: str
     version: str
-    arg_parse_mode: typing.Literal[
+    arg_parse_mode: Literal[
         None,
         'known',
         'intermixed',
