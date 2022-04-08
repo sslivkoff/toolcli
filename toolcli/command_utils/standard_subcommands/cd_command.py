@@ -8,12 +8,13 @@ def get_cd_help(parse_spec: toolcli.ParseSpec) -> str:
     program_name = parse_spec.get('config', {}).get('base_command', 'PROGRAM')
     return 'change working directory to ' + program_name + '-related location'
 
+
 def get_command_spec() -> toolcli.CommandSpec:
     return {
         'f': cd_command,
         'help': get_cd_help,
         'args': [
-            {'name': 'dirname'},
+            {'name': 'dirname', 'help': 'name of directory'},
         ],
         'special': {'cd': True, 'include_parse_spec': True},
     }
@@ -42,7 +43,9 @@ def cd_command(
             'add the following snippet to your shell config (e.g. ~/.profile):'
         )
         default_name = '<PROGRAM_NAME>'
-        program_name = parse_spec.get('config', {}).get('base_command', default_name)
+        program_name = parse_spec.get('config', {}).get(
+            'base_command', default_name
+        )
         cd_snippet = cd_snippet_template.replace('{program_name}', program_name)
         print()
         print(cd_snippet)
