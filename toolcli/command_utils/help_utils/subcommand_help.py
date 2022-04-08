@@ -175,13 +175,17 @@ def print_subcommand_help(parse_spec: toolcli.ParseSpec) -> None:
             if other_sequence == command_sequence:
                 continue
             if other_sequence[: len(command_sequence)] == command_sequence:
-                subsubcommands.append(other_sequence[len(command_sequence) :])
 
+                # get command spec
                 try:
                     command_spec = parsing.resolve_command_spec(other_reference)
                 except Exception:
                     command_spec = {}
 
+                if command_spec.get('special', {}).get('hidden'):
+                    continue
+
+                # get description
                 command_spec_help = command_spec.get('help')
                 if isinstance(command_spec_help, str):
                     description = command_spec_help
@@ -189,6 +193,8 @@ def print_subcommand_help(parse_spec: toolcli.ParseSpec) -> None:
                     description = command_spec_help(parse_spec)
                 else:
                     description = ''
+
+                subsubcommands.append(other_sequence[len(command_sequence) :])
                 descriptions.append(description)
         if len(subsubcommands) > 0:
             print()
