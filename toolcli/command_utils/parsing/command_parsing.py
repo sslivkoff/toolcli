@@ -72,6 +72,12 @@ def _add_standard_subcommands(
             ('help',)
         ] = 'toolcli.command_utils.standard_subcommands.help_command'
 
+    # add record help subcommand
+    if config.get('include_record_help_subcommand') and ('record', 'help',) not in command_index:
+        command_index[
+            ('record', 'help',)
+        ] = 'toolcli.command_utils.standard_subcommands.record_help_command'
+
     # add cd subcommand
     if config.get('include_cd_subcommand') and ('cd',) not in command_index:
         command_index[

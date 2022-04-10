@@ -1,5 +1,4 @@
-
-def get_rich_console(parse_spec):
+def get_rich_console(parse_spec, record=False):
 
     import rich.console
     import rich.theme
@@ -8,7 +7,8 @@ def get_rich_console(parse_spec):
     if style_theme is None:
         style_theme = {}
     console = rich.console.Console(
-        theme=rich.theme.Theme(style_theme, inherit=False)  # type: ignore
+        theme=rich.theme.Theme(style_theme, inherit=False),  # type: ignore
+        record=record,
     )
 
     return console
