@@ -11,10 +11,12 @@ from .. import output_utils
 def print_subcommand_usage(
     parse_spec: toolcli.ParseSpec,
     indent: typing.Optional[str] = None,
+    console=None,
 ) -> None:
     """print usage for a subcommand"""
 
-    console = output_utils.get_rich_console(parse_spec)
+    if console is None:
+        console = output_utils.get_rich_console(parse_spec)
 
     config = parse_spec['config']
     command_sequence = parse_spec['command_sequence']
@@ -98,19 +100,20 @@ def print_cd_dirs(*, config=None, console=None, parse_spec=None, indent=None):
         )
 
 
-def print_subcommand_help(parse_spec: toolcli.ParseSpec) -> None:
+def print_subcommand_help(parse_spec: toolcli.ParseSpec, console=None) -> None:
     """print help for a subcommand"""
 
-    console = output_utils.get_rich_console(parse_spec)
+    if console is None:
+        console = output_utils.get_rich_console(parse_spec)
 
     command_spec = parse_spec['command_spec']
     config = parse_spec.get('config')
 
-    print_subcommand_usage(parse_spec, indent='    ')
+    print_subcommand_usage(parse_spec, indent='    ', console=console)
 
     # print description
     if 'help' in command_spec:
-        print()
+        console.print()
         console.print('[title]description:[/title]')
         indent = '    '
         command_help = command_spec['help']
@@ -124,7 +127,7 @@ def print_subcommand_help(parse_spec: toolcli.ParseSpec) -> None:
         help_str = '\n'.join(lines)
         console.print('[description]' + help_str + '[/description]')
     if command_spec.get('special', {}).get('cd'):
-        print()
+        console.print()
         print_cd_dirs(config=config, console=console, indent='    ')
 
     # print arg info
@@ -157,7 +160,7 @@ def print_subcommand_help(parse_spec: toolcli.ParseSpec) -> None:
     if len(arg_names) > 0:
         max_name_len = max(len(name) for name in arg_names)
         arg_names = [name.ljust(max_name_len) for name in arg_names]
-        print()
+        console.print()
         console.print('[title]arguments:[/title]')
         for a in range(len(arg_names)):
             console.print('    ' + arg_names[a] + '    ' + arg_helps[a])
@@ -197,8 +200,8 @@ def print_subcommand_help(parse_spec: toolcli.ParseSpec) -> None:
                 subsubcommands.append(other_sequence[len(command_sequence) :])
                 descriptions.append(description)
         if len(subsubcommands) > 0:
-            print()
-            print()
+            console.print()
+            console.print()
             console.print('[title]usage of subcommands:[/title]')
             console.print(
                 '    [option]'
@@ -207,7 +210,7 @@ def print_subcommand_help(parse_spec: toolcli.ParseSpec) -> None:
                 + ' '.join(command_sequence)
                 + '[/option] [description]can also be used to invoke subcommands[/description]'
             )
-            print()
+            console.print()
             console.print(
                 '    [description]to view help about a specific subcommand, run:[/description]'
             )
@@ -218,13 +221,15 @@ def print_subcommand_help(parse_spec: toolcli.ParseSpec) -> None:
                 + ' '.join(command_sequence)
                 + ' <subcommand> -h[/option]'
             )
-            print()
+            console.print()
             max_length = max(
                 len(' '.join(subsubcommand)) for subsubcommand in subsubcommands
             )
             console.print('[title]available subcommands:[/title]')
             for subsubcommand, description in zip(subsubcommands, descriptions):
-                subsubcommand_str: str = ' '.join(subsubcommand).ljust(max_length)
+                subsubcommand_str: str = ' '.join(subsubcommand).ljust(
+                    max_length
+                )
                 console.print(
                     '    [option]'
                     + subsubcommand_str

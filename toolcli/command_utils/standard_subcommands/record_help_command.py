@@ -4,6 +4,7 @@ import os
 
 from toolcli.command_utils import help_utils
 from toolcli.command_utils import output_utils
+from toolcli.command_utils import parsing
 from toolcli import capture_utils
 
 
@@ -40,11 +41,20 @@ def record_help_command(subcommand, path, overwrite, parse_spec):
     # produce output
     if len(subcommand) == 0:
         help_utils.print_root_command_help(
-            parse_spec=parse_spec, console=console
+            parse_spec=parse_spec,
+            console=console,
         )
     else:
-        help_utils.print_root_command_help(
-            parse_spec=parse_spec, console=console
+        new_parse_spec = parsing.create_parse_spec(
+            raw_command=None,
+            command_index=parse_spec['command_index'],
+            command_sequence=tuple(subcommand),
+            command_spec=None,
+            config=parse_spec['config'],
+        )
+        help_utils.print_subcommand_help(
+            parse_spec=new_parse_spec,
+            console=console,
         )
 
     # save console output
