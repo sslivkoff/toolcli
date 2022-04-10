@@ -16,6 +16,7 @@ def get_command_spec():
             {'name': 'subcommand', 'nargs': '*'},
             {'name': '--path'},
             {'name': '--overwrite', 'action': 'store_true'},
+            {'name': '--all', 'dest': 'record_all', 'action': 'store_true'},
         ],
         'special': {
             'include_parse_spec': True,
@@ -23,13 +24,14 @@ def get_command_spec():
     }
 
 
-def record_help_command(subcommand, path, overwrite, parse_spec):
-    if path is None:
-        if len(subcommand) == 0:
-            path = 'help.html'
-        else:
-            path = '_'.join(subcommand) + '__help.html'
+def record_help_command(subcommand, path, overwrite, parse_spec, record_all=False):
 
+    if record_all:
+        record_all_help_commands(path, parse_spec, overwrite)
+        return
+
+    if path is None:
+        path = get_default_subcommand_path(subcommand)
     if os.path.isfile(path) and not overwrite:
         raise Exception(
             'path already exists, use --overwrite to force overwrite'
@@ -61,8 +63,32 @@ def record_help_command(subcommand, path, overwrite, parse_spec):
     capture_utils.save_console_output(
         console=console,
         path=path,
+        code_format='minimal',
     )
 
     print()
     print('recorded help to path: ' + str(path))
+
+
+def get_default_subcommand_path(subcommand):
+    if len(subcommand) == 0:
+        return 'help.html'
+    else:
+        return '_'.join(subcommand) + '__help.html'
+
+
+def record_all_help_commands(path, parse_spec, overwrite):
+
+    if path is not None:
+        raise NotImplementedError('cannot specify path when recording all')
+    # if path is not None and not os.path.isdir(path):
+    #     raise Exception('must specify an existing dir when recording all')
+
+    for subcommand in parse_spec['command_index']:
+        record_help_command(
+            subcommand=subcommand,
+            overwrite=overwrite,
+            parse_spec=parse_spec,
+            path=None,
+        )
 

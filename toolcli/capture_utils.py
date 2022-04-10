@@ -1,5 +1,5 @@
 def get_minimal_html_format():
-    return """<pre style="font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">{code}</pre>"""
+    return """<pre class="terminal" style="font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">{code}</pre>"""
 
 
 def save_console_output(console, path, code_format=None, inline_styles=True):
