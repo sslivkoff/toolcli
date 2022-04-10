@@ -1,23 +1,16 @@
 from __future__ import annotations
 
 import types
-import typing
 
 import toolcli
+from toolcli.command_utils import output_utils
 
 
-def print_root_command_help(parse_spec: toolcli.ParseSpec) -> None:
+def print_root_command_help(parse_spec: toolcli.ParseSpec, console=None) -> None:
     """print help message for a root command"""
 
-    import rich.console
-    import rich.theme
-
-    style_theme = parse_spec['config'].get('style_theme')
-    if style_theme is None:
-        style_theme = {}
-    console = rich.console.Console(
-        theme=rich.theme.Theme(style_theme, inherit=False)  # type: ignore
-    )
+    if console is None:
+        console = output_utils.get_rich_console(parse_spec=parse_spec)
 
     config = parse_spec['config']
     command_index = parse_spec['command_index']
@@ -29,12 +22,12 @@ def print_root_command_help(parse_spec: toolcli.ParseSpec) -> None:
         + base_command
         + ' <subcommand> \[options][/option]'
     )
-    print()
+    console.print()
     console.print('[title]description:[/title]')
     if config.get('description') is not None:
         lines = ['    ' + line for line in config['description'].split('\n')]
         console.print('[description]' + '\n'.join(lines) + '[/description]')
-        print()
+        console.print()
     console.print(
         '    [description]to view help about a specific subcommand run:\n'
         + '        [option]'
@@ -65,16 +58,18 @@ def print_root_command_help(parse_spec: toolcli.ParseSpec) -> None:
             help_str = help_str.split('\n')[0]
             helps.append(help_str)
 
-        print()
+        console.print()
         console.print('[title]available subcommands:[/title]')
 
         max_len_subcommand = max(len(subcommand) for subcommand in subcommands)
+        url = 'https://github.com/sslivkoff/'
         for sc in range(len(subcommands)):
-            console.print(
+            text = (
                 '    [option]'
                 + subcommands[sc].ljust(max_len_subcommand)
                 + '[/option]    [description]'
                 + helps[sc]
                 + '[/description]'
             )
+            console.print(text, style='link ' + url)
 
