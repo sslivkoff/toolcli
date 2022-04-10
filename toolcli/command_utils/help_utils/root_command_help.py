@@ -6,7 +6,9 @@ import toolcli
 from toolcli.command_utils import output_utils
 
 
-def print_root_command_help(parse_spec: toolcli.ParseSpec, console=None) -> None:
+def print_root_command_help(
+    parse_spec: toolcli.ParseSpec, console=None, include_links=False,
+) -> None:
     """print help message for a root command"""
 
     if console is None:
@@ -62,8 +64,27 @@ def print_root_command_help(parse_spec: toolcli.ParseSpec, console=None) -> None
         console.print('[title]available subcommands:[/title]')
 
         max_len_subcommand = max(len(subcommand) for subcommand in subcommands)
-        url = 'https://github.com/sslivkoff/'
+
+        if include_links:
+            help_url_getter = config.get('help_url_getter')
+        else:
+            help_url_getter = None
+
         for sc in range(len(subcommands)):
+
+            # get url
+            if help_url_getter is not None:
+                try:
+                    url = help_url_getter(
+                        subcommand=subcommands[sc].split(' '),
+                        parse_spec=parse_spec,
+                    )
+                except Exception:
+                    url = None
+            else:
+                url = None
+
+            # create text
             text = (
                 '    [option]'
                 + subcommands[sc].ljust(max_len_subcommand)
@@ -71,5 +92,10 @@ def print_root_command_help(parse_spec: toolcli.ParseSpec, console=None) -> None
                 + helps[sc]
                 + '[/description]'
             )
-            console.print(text, style='link ' + url)
+
+            # print text
+            if url is None:
+                console.print(text)
+            else:
+                console.print(text, style='link ' + url)
 

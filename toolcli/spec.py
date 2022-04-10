@@ -134,6 +134,13 @@ class CLIConfig(TypedDict, total=False):
     cd_dir_getter: typing.Callable[[str], str]
     cd_dir_help: dict[str, str]
     include_help_subcommand: bool
+    help_url_getter: typing.Callable[
+        [
+            typing.NamedArg(typing.Tuple[str], 'subcommand'),
+            typing.NamedArg(ParseSpec, 'parse_spec'),
+        ],
+        str,
+    ]
     include_record_help_subcommand: bool
     include_version_subcommand: bool
     include_cli_subcommand: bool

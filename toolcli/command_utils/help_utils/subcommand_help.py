@@ -100,8 +100,13 @@ def print_cd_dirs(*, config=None, console=None, parse_spec=None, indent=None):
         )
 
 
-def print_subcommand_help(parse_spec: toolcli.ParseSpec, console=None) -> None:
+def print_subcommand_help(
+    parse_spec: toolcli.ParseSpec, console=None, include_links=False
+) -> None:
     """print help for a subcommand"""
+
+    if include_links:
+        raise NotImplementedError('links in subcommand help')
 
     if console is None:
         console = output_utils.get_rich_console(parse_spec)

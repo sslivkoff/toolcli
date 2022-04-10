@@ -45,6 +45,7 @@ def record_help_command(subcommand, path, overwrite, parse_spec, record_all=Fals
         help_utils.print_root_command_help(
             parse_spec=parse_spec,
             console=console,
+            include_links=True,
         )
     else:
         new_parse_spec = parsing.create_parse_spec(
@@ -57,6 +58,7 @@ def record_help_command(subcommand, path, overwrite, parse_spec, record_all=Fals
         help_utils.print_subcommand_help(
             parse_spec=new_parse_spec,
             console=console,
+            include_links=False,
         )
 
     # save console output
