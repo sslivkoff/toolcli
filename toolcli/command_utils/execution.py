@@ -104,27 +104,29 @@ def execute_command_spec(
     function = resolve_function(command_spec['f'])
 
     if not _iscoroutinefunction(function):
-
         # execute as normal function
-        if not debug:
+
+        try:
             function(**args)
-        else:
-            try:
-                function(**args)
-            except Exception:
+        except Exception as exception:
+            if debug:
                 _enter_debugger()
+            else:
+                print(exception.args[0])
+                sys.exit()
     else:
+        # execute as coroutine
 
         import asyncio
 
-        # execute as coroutine
-        if not debug:
+        try:
             asyncio.run(function(**args))
-        else:
-            try:
-                asyncio.run(function(**args))
-            except Exception:
+        except Exception as exception:
+            if debug:
                 _enter_debugger()
+            else:
+                print(exception.args[0])
+                sys.exit()
 
 
 def resolve_function(
