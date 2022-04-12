@@ -1,13 +1,17 @@
 from __future__ import annotations
 
+import typing
 import types
 
 import toolcli
+from toolcli import spec
 from toolcli.command_utils import output_utils
 
 
 def print_root_command_help(
-    parse_spec: toolcli.ParseSpec, console=None, include_links=False,
+    parse_spec: toolcli.ParseSpec,
+    console=None,
+    include_links=False,
 ) -> None:
     """print help message for a root command"""
 
@@ -38,18 +42,19 @@ def print_root_command_help(
     )
 
     if command_index is not None:
-        subcommands = []
-        helps = []
+        subcommands = {}
+        helps = {}
+        command_specs = {}
         for command_sequence, command_spec_spec in command_index.items():
-            if len(command_sequence) == 0:
-                continue
+            # if len(command_sequence) == 0:
+            #     continue
             try:
                 command_spec = toolcli.resolve_command_spec(command_spec_spec)
             except Exception:
                 command_spec = {}
-            if command_spec.get('special', {}).get('hidden'):
-                continue
-            subcommands.append(' '.join(command_sequence))
+            command_specs[command_sequence] = command_spec
+
+            subcommands[command_sequence] = ' '.join(command_sequence)
             subcommand_help = command_spec.get('help', '')
             if isinstance(subcommand_help, str):
                 help_str = subcommand_help
@@ -58,44 +63,83 @@ def print_root_command_help(
             else:
                 help_str = ''
             help_str = help_str.split('\n')[0]
-            helps.append(help_str)
+            helps[command_sequence] = help_str
 
         console.print()
         console.print('[title]available subcommands:[/title]')
 
-        max_len_subcommand = max(len(subcommand) for subcommand in subcommands)
+        max_len_subcommand = max(
+            len(subcommand) for subcommand in subcommands.values()
+        )
 
         if include_links:
             help_url_getter = config.get('help_url_getter')
         else:
             help_url_getter = None
 
-        for sc in range(len(subcommands)):
+        # get category of each subcommand
+        help_subcommand_categories = config.get('help_subcommand_categories')
+        if help_subcommand_categories is not None:
+            is_capital = next(
+                iter(help_subcommand_categories.values())
+            ).isupper()
+            if is_capital:
+                other = 'Other'
+            else:
+                other = 'other'
+            subcommands_by_category: typing.MutableMapping[
+                str, list[spec.CommandSequence]
+            ] = {}
+            for command_sequence in sorted(command_index.keys()):
+                category = help_subcommand_categories.get(
+                    command_sequence, other
+                )
+                subcommands_by_category.setdefault(category, [])
+                subcommands_by_category[category].append(command_sequence)
+        else:
+            subcommands_by_category = {'Other': list(command_index.keys())}
+        print_subcommand_categories = len(subcommands_by_category) > 1
 
-            # get url
-            if help_url_getter is not None:
-                try:
-                    url = help_url_getter(
-                        subcommand=subcommands[sc].split(' '),
-                        parse_spec=parse_spec,
-                    )
-                except Exception:
+        for category, command_sequences in subcommands_by_category.items():
+
+            if print_subcommand_categories:
+                console.print()
+                console.print('    [title]' + category + ' subcommands[/title]')
+
+            for command_sequence in command_sequences:
+                if len(command_sequence) == 0:
+                    continue
+                if (
+                    command_specs[command_sequence]
+                    .get('special', {})
+                    .get('hidden')
+                ):
+                    continue
+
+                # get url of command
+                if help_url_getter is not None:
+                    try:
+                        url = help_url_getter(
+                            subcommand=command_sequence,
+                            parse_spec=parse_spec,
+                        )
+                    except Exception:
+                        url = None
+                else:
                     url = None
-            else:
-                url = None
 
-            # create text
-            text = (
-                '    [option]'
-                + subcommands[sc].ljust(max_len_subcommand)
-                + '[/option]    [description]'
-                + helps[sc]
-                + '[/description]'
-            )
+                # create text
+                text = (
+                    '    [option]'
+                    + subcommands[command_sequence].ljust(max_len_subcommand)
+                    + '[/option]    [description]'
+                    + helps[command_sequence]
+                    + '[/description]'
+                )
 
-            # print text
-            if url is None:
-                console.print(text)
-            else:
-                console.print(text, style='link ' + url)
+                # print text
+                if url is None:
+                    console.print(text)
+                else:
+                    console.print(text, style='link ' + url)
 

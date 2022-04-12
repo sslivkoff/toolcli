@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import types
 import typing
-from typing_extensions import TypedDict, Literal
+from typing_extensions import TypedDict, Literal, Protocol
 
 #
 # # types
@@ -105,6 +105,16 @@ MiddlewareSpec = typing.Union['MiddlewareFunction', FunctionReference]
 MiddlewareSpecs = typing.List['MiddlewareSpec']
 
 
+class HelpUrlGetter(Protocol):
+    def __call__(
+        self,
+        *,
+        subcommand: typing.Tuple[str, ...],
+        parse_spec: 'ParseSpec',
+    ) -> str:
+        pass
+
+
 class CLIConfig(TypedDict, total=False):
     #
     # arg parse
@@ -134,13 +144,15 @@ class CLIConfig(TypedDict, total=False):
     cd_dir_getter: typing.Callable[[str], str]
     cd_dir_help: dict[str, str]
     include_help_subcommand: bool
-    help_url_getter: typing.Callable[
-        [
-            typing.NamedArg(typing.Tuple[str], 'subcommand'),
-            typing.NamedArg(ParseSpec, 'parse_spec'),
-        ],
-        str,
-    ]
+    help_url_getter: HelpUrlGetter
+    # help_url_getter: typing.Callable[
+    #     [
+    #         typing.NamedArg(typing.Tuple[str], 'subcommand'),  # noqa: F821
+    #         typing.NamedArg(ParseSpec, 'parse_spec'),  # noqa: F821
+    #     ],
+    #     str,
+    # ]
+    help_subcommand_categories: typing.Mapping[CommandSequence, str]
     include_record_help_subcommand: bool
     include_version_subcommand: bool
     include_cli_subcommand: bool
