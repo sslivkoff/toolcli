@@ -50,17 +50,40 @@ def record_help_command(
     path,
     overwrite,
     parse_spec,
+    category=None,
     record_all=False,
     include_hidden=False,
 ):
 
     if record_all:
         record_all_help_commands(
-            path, parse_spec, overwrite, include_hidden=include_hidden
+            path=path,
+            parse_spec=parse_spec,
+            overwrite=overwrite,
+            include_hidden=include_hidden,
         )
-        return
+    else:
+        record_single_help_command(
+            subcommand=subcommand,
+            path=path,
+            overwrite=overwrite,
+            parse_spec=parse_spec,
+            category=category,
+        )
 
-    if path is None:
+
+def record_single_help_command(
+    subcommand,
+    path,
+    overwrite,
+    parse_spec,
+    category=None,
+):
+
+    # compute path
+    if path is not None and '.' not in os.path.basename(path):
+        path = get_default_subcommand_path(subcommand, directory=path)
+    elif path is None:
         path = get_default_subcommand_path(subcommand)
     if os.path.isfile(path) and not overwrite:
         raise Exception(
@@ -76,6 +99,7 @@ def record_help_command(
             parse_spec=parse_spec,
             console=console,
             include_links=True,
+            only_category=category,
         )
     else:
         new_parse_spec = parsing.create_parse_spec(
@@ -92,6 +116,9 @@ def record_help_command(
         )
 
     # save console output
+    parent = os.path.dirname(path)
+    if len(parent) > 0:
+        os.makedirs(parent, exist_ok=True)
     capture_utils.save_console_output(
         console=console,
         path=path,
@@ -102,30 +129,93 @@ def record_help_command(
     print('recorded help to path: ' + str(path))
 
 
-def get_default_subcommand_path(subcommand):
+def get_default_subcommand_path(subcommand, directory=None):
+
+    # build filename
     if len(subcommand) == 0:
-        return 'help.html'
+        filename = 'root__help.html'
     else:
-        return '_'.join(subcommand) + '__help.html'
+        filename = '_'.join(subcommand) + '__help.html'
+
+    # build full path
+    if directory is not None:
+        path = os.path.join(directory, filename)
+    else:
+        path = filename
+
+    return path
 
 
 def record_all_help_commands(path, parse_spec, overwrite, include_hidden):
 
-    if path is not None:
-        raise NotImplementedError('cannot specify path when recording all')
-    # if path is not None and not os.path.isdir(path):
-    #     raise Exception('must specify an existing dir when recording all')
+    if path is None:
+        path = '.'
+    if path is not None and not os.path.isdir(path):
+        raise Exception('must specify an existing dir when recording all')
 
-    for subcommand, command_spec_ref in parse_spec['command_index'].items():
+    # determine whether using categories
+    config = parse_spec['config']
+    help_subcommand_categories = config.get('help_subcommand_categories')
+    using_categories = help_subcommand_categories is not None
+    if using_categories:
+        is_capital = next(iter(help_subcommand_categories.values())).isupper()
+        if is_capital:
+            other = 'Other'
+        else:
+            other = 'other'
+
+    # record help of root command
+    record_single_help_command(
+        subcommand=(),
+        overwrite=overwrite,
+        parse_spec=parse_spec,
+        path=None,
+    )
+
+    # record help of each subcommand
+    for command_sequence, command_spec_ref in parse_spec['command_index'].items():
+
+        if command_sequence == ():
+            continue
+
+        # skip hidden commands
         if not include_hidden:
             command_spec = parsing.resolve_command_spec(command_spec_ref)
             if command_spec.get('special', {}).get('hidden'):
                 continue
 
-        record_help_command(
-            subcommand=subcommand,
+        # determine path
+        if using_categories:
+            category = help_subcommand_categories.get(command_sequence, other)
+            subcommand_path = os.path.join(path, 'subcommands', category)
+        else:
+            subcommand_path = os.path.join(path, 'subcommands')
+
+        # record command
+        record_single_help_command(
+            subcommand=command_sequence,
             overwrite=overwrite,
             parse_spec=parse_spec,
-            path=None,
+            path=subcommand_path,
         )
+
+    # record help of each subcommand category
+    if using_categories:
+
+        # gather all categories
+        categories = []
+        for command_sequence in parse_spec['command_index'].keys():
+            category = help_subcommand_categories.get(command_sequence, other)
+            if category not in categories:
+                categories.append(category)
+
+        # record help of each category
+        for category in categories:
+            record_single_help_command(
+                subcommand=(),
+                overwrite=overwrite,
+                parse_spec=parse_spec,
+                category=category,
+                path=os.path.join(path, 'categories', category + '__help.html'),
+            )
 

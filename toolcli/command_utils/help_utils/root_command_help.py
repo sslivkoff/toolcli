@@ -12,6 +12,7 @@ def print_root_command_help(
     parse_spec: toolcli.ParseSpec,
     console=None,
     include_links=False,
+    only_category=None,
 ) -> None:
     """print help message for a root command"""
 
@@ -22,6 +23,7 @@ def print_root_command_help(
     command_index = parse_spec['command_index']
     base_command = config.get('base_command', '<base-command>')
 
+    # print usage and description
     console.print(
         '[title]usage:[/title]\n    '
         + '[option]'
@@ -41,13 +43,14 @@ def print_root_command_help(
         + ' <subcommand> -h[/option][/description]'
     )
 
+    # print subcommands
     if command_index is not None:
+
+        # gather command_spec and help text of each subcommand
         subcommands = {}
-        helps = {}
         command_specs = {}
+        helps = {}
         for command_sequence, command_spec_spec in command_index.items():
-            # if len(command_sequence) == 0:
-            #     continue
             try:
                 command_spec = toolcli.resolve_command_spec(command_spec_spec)
             except Exception:
@@ -65,13 +68,15 @@ def print_root_command_help(
             help_str = help_str.split('\n')[0]
             helps[command_sequence] = help_str
 
+        # print subcommand header
         console.print()
-        console.print('[title]available subcommands:[/title]')
+        if only_category is not None:
+            subcommand_header = only_category + ' subcommands:'
+        else:
+            subcommand_header = 'available subcommands:'
+        console.print('[title]' + subcommand_header + '[/title]')
 
-        max_len_subcommand = max(
-            len(subcommand) for subcommand in subcommands.values()
-        )
-
+        # get help_url_getter function
         if include_links:
             help_url_getter = config.get('help_url_getter')
         else:
@@ -98,9 +103,18 @@ def print_root_command_help(
                 subcommands_by_category[category].append(command_sequence)
         else:
             subcommands_by_category = {'Other': list(command_index.keys())}
-        print_subcommand_categories = len(subcommands_by_category) > 1
+        print_subcommand_categories = (
+            len(subcommands_by_category) > 1 and only_category is None
+        )
 
+        # print commands of each category
+        max_len_subcommand = max(
+            len(subcommand) for subcommand in subcommands.values()
+        )
         for category, command_sequences in subcommands_by_category.items():
+
+            if only_category and category != only_category:
+                continue
 
             if print_subcommand_categories:
                 console.print()
