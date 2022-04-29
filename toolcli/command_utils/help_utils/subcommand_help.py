@@ -162,6 +162,30 @@ def print_subcommand_help(
         arg_help = '[description]' + arg_help + '[/description]'
         arg_helps.append(arg_help)
 
+    # add example comments
+    examples = command_spec.get('examples')
+    if examples is not None and len(examples) > 0:
+        base = config['base_command'] + ' ' + ' '.join(parse_spec['command_sequence'])
+        if len(examples) == 1:
+            word = 'example'
+        else:
+            word = 'examples'
+        if isinstance(examples, list):
+            console.print()
+            console.print('[title]' + word + ':[/title]')
+            for example in examples:
+                console.print('    [option]' + base + ' ' + str(example) + '[/option]')
+        elif isinstance(examples, dict):
+            console.print()
+            console.print('[title]' + word + ':[/title]')
+            for e, (call, comment) in enumerate(examples.items()):
+                if e != 0:
+                    console.print()
+                console.print('    [comment]# ' + str(comment) + '[/comment]')
+                console.print('    [option]' + base + ' ' + str(call) + '[/option]')
+        else:
+            pass
+
     if len(arg_names) > 0:
         max_name_len = max(len(name) for name in arg_names)
         arg_names = [name.ljust(max_name_len) for name in arg_names]

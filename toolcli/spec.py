@@ -71,8 +71,9 @@ class CommandSpec(TypedDict, total=False):
     # because mypy cannot express cyclic types...
     # help: typing.Union[str, typing.Callable[['ParseSpec'], str]]
     help: typing.Union[str, typing.Callable[[typing.Any], str]]
-    args: list[ArgSpec]
+    args: typing.Sequence[ArgSpec]
     special: SpecialCommandParams
+    examples: typing.Sequence[str] | typing.Mapping[str, str]
 
 
 CommandSequence = typing.Tuple[str, ...]
