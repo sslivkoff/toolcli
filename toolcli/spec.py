@@ -66,6 +66,11 @@ class SpecialCommandParams(TypedDict, total=False):
     inject: typing.Sequence[str]
 
 
+class CallExample(TypedDict, total=False):
+    description: str
+    runnable: bool
+
+
 class CommandSpec(TypedDict, total=False):
     f: typing.Callable[..., typing.Any]
     # because mypy cannot express cyclic types...
@@ -73,7 +78,7 @@ class CommandSpec(TypedDict, total=False):
     help: typing.Union[str, typing.Callable[[typing.Any], str]]
     args: typing.Sequence[ArgSpec]
     special: SpecialCommandParams
-    examples: typing.Sequence[str] | typing.Mapping[str, str]
+    examples: typing.Sequence[str] | typing.Mapping[str, str | CallExample]
 
 
 CommandSequence = typing.Tuple[str, ...]

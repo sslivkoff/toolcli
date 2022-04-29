@@ -178,10 +178,14 @@ def print_subcommand_help(
         elif isinstance(examples, dict):
             console.print()
             console.print('[title]' + word + ':[/title]')
-            for e, (call, comment) in enumerate(examples.items()):
+            for e, (call, data) in enumerate(examples.items()):
                 if e != 0:
                     console.print()
-                console.print('    [comment]# ' + str(comment) + '[/comment]')
+
+                if isinstance(data, dict):
+                    console.print('    [comment]# ' + str(data['description']) + '[/comment]')
+                else:
+                    console.print('    [comment]# ' + str(data) + '[/comment]')
                 console.print('    [option]' + base + ' ' + str(call) + '[/option]')
         else:
             pass
