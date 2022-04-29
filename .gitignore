@@ -7,3 +7,4 @@ notebooks/
 future/
 pyproject.toml
 
+.hypothesis
