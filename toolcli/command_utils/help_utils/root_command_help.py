@@ -111,7 +111,14 @@ def print_root_command_help(
         max_len_subcommand = max(
             len(subcommand) for subcommand in subcommands.values()
         )
-        for category, command_sequences in subcommands_by_category.items():
+        category_order = sorted(subcommands_by_category.keys())
+        for other in ['other', 'Other']:
+            if other in category_order:
+                category_order.pop(category_order.index(other))
+                category_order.append(other)
+
+        for category in category_order:
+            command_sequences = subcommands_by_category[category]
 
             if only_category and category != only_category:
                 continue
