@@ -3,7 +3,7 @@ import setuptools
 
 setuptools.setup(
     name='toolcli',
-    version='0.3.9',
+    version='0.3.10',
     packages=setuptools.find_packages(),
     install_requires=[
         'ipdb',
@@ -11,4 +11,3 @@ setuptools.setup(
         'typing_extensions',
     ],
 )
-
