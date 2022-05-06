@@ -24,7 +24,7 @@ cd_snippet_template = """function {program_name} {
     local tempfile="$(mktemp -t tmp.XXXXXX)"
     command {program_name} "$@" --new_dir_tempfile "$tempfile"
     if [[ -s "$tempfile" ]]; then
-        cd "$(cat "$tempfile")"
+        cd "$(realpath $(cat "$tempfile"))"
     fi
     rm -f "$tempfile" 2>/dev/null
 }"""
