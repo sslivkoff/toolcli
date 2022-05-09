@@ -5,6 +5,5 @@ build/
 dist/
 notebooks/
 future/
-pyproject.toml
 
 .hypothesis
