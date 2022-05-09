@@ -6,8 +6,12 @@ setuptools.setup(
     version='0.3.10',
     packages=setuptools.find_packages(),
     install_requires=[
-        'ipdb',
-        'rich',
-        'typing_extensions',
+        'rich>=12.1.0',
+        'typing_extensions>=0.4.0',
     ],
+    extras_require={
+        'full': [
+            'ipdb',
+        ],
+    },
 )
