@@ -59,26 +59,21 @@ class ArgSpec(TypedDict, total=False):
     version: typing.Optional[str]
 
 
-class SpecialCommandParams(TypedDict, total=False):
-    cd: bool
-    include_parse_spec: bool
-    hidden: bool
-    inject: typing.Sequence[str]
-
-
 class CallExample(TypedDict, total=False):
     description: str
     runnable: bool
 
 
+# because mypy cannot express cyclic types...
+# help: typing.Union[str, typing.Callable[['ParseSpec'], str]]
+
 class CommandSpec(TypedDict, total=False):
     f: typing.Callable[..., typing.Any]
-    # because mypy cannot express cyclic types...
-    # help: typing.Union[str, typing.Callable[['ParseSpec'], str]]
     help: typing.Union[str, typing.Callable[[typing.Any], str]]
     args: typing.Sequence[ArgSpec]
-    special: SpecialCommandParams
     examples: typing.Sequence[str] | typing.Mapping[str, str | CallExample]
+    hidden: bool
+    extra_data: typing.Sequence[str]
 
 
 CommandSequence = typing.Tuple[str, ...]
@@ -135,11 +130,11 @@ class CLIConfig(TypedDict, total=False):
     ]
     #
     # toolcli
-    common_args: list[ArgSpec]
     default_command_sequence: CommandSequence
     command_sequence_aliases: dict[CommandSequence, CommandSequence]
     sort_command_index: bool
     style_theme: StyleTheme
+    extra_data: typing.Mapping[str, typing.Any]
     #
     # middleware
     pre_middlewares: 'MiddlewareSpecs'
@@ -151,13 +146,6 @@ class CLIConfig(TypedDict, total=False):
     cd_dir_help: dict[str, str]
     include_help_subcommand: bool
     help_url_getter: HelpUrlGetter
-    # help_url_getter: typing.Callable[
-    #     [
-    #         typing.NamedArg(typing.Tuple[str], 'subcommand'),  # noqa: F821
-    #         typing.NamedArg(ParseSpec, 'parse_spec'),  # noqa: F821
-    #     ],
-    #     str,
-    # ]
     help_subcommand_categories: typing.Mapping[CommandSequence, str]
     include_record_help_subcommand: bool
     include_version_subcommand: bool
@@ -186,7 +174,7 @@ standard_args: dict[str, ArgSpec] = {
         'internal': True,
     },
     'cd': {
-        'name': '--new_dir_tempfile',
+        'name': '--cd-destination-tempfile',
         'help': 'used internally by cd command to track destination dir',
         'internal': True,
     },

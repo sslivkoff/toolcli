@@ -7,10 +7,8 @@ def get_command_spec() -> toolcli.CommandSpec:
     return {
         'f': cli_index_command,
         'help': 'print command_index of possible subcommands',
-        'special': {
-            'include_parse_spec': True,
-            'hidden': True,
-        },
+        'hidden': True,
+        'extra_data': ['parse_spec'],
     }
 
 
@@ -37,4 +35,3 @@ def cli_index_command(parse_spec: toolcli.ParseSpec) -> None:
                 + '    '
                 + str(reference)
             )
-

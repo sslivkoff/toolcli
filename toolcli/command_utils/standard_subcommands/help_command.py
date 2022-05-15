@@ -10,12 +10,9 @@ def get_command_spec() -> toolcli.CommandSpec:
     return {
         'f': help_command,
         'help': 'output help',
-        'special': {
-            'include_parse_spec': True,
-        },
+        'extra_data': ['parse_spec'],
     }
 
 
 def help_command(parse_spec: toolcli.ParseSpec) -> None:
     help_utils.print_root_command_help(parse_spec)
-

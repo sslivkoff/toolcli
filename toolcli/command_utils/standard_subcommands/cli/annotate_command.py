@@ -16,7 +16,8 @@ def get_command_spec() -> toolcli.CommandSpec:
                 'nargs': '+',
             },
         ],
-        'special': {'include_parse_spec': True, 'hidden': True},
+        'hidden': True,
+        'extra_data': ['parse_spec'],
     }
 
 
@@ -33,4 +34,3 @@ def annotate_command(
         command_spec = parsing.resolve_command_spec(comamnd_spec_ref)
         annotated = dev_utils.annotate_command_spec(command_spec)
         print(annotated)
-

@@ -90,7 +90,7 @@ def print_cd_dirs(*, config=None, console=None, parse_spec=None, indent=None):
         console = output_utils.get_rich_console(parse_spec)
 
     console.print(
-        indent + '[description]available directories for cd:[/description]'
+        indent + '[description]directories:[/description]'
     )
     for key, value in config.get('cd_dir_help', {}).items():
         console.print(
@@ -112,7 +112,7 @@ def print_subcommand_help(
         console = output_utils.get_rich_console(parse_spec)
 
     command_spec = parse_spec['command_spec']
-    config = parse_spec.get('config')
+    config = parse_spec.get('config', {})
 
     print_subcommand_usage(parse_spec, indent='    ', console=console)
 
@@ -131,7 +131,7 @@ def print_subcommand_help(
         lines = [indent + line for line in help_str.split('\n')]
         help_str = '\n'.join(lines)
         console.print('[description]' + help_str + '[/description]')
-    if command_spec.get('special', {}).get('cd'):
+    if parse_spec['command_sequence'] == ('cd',):
         console.print()
         print_cd_dirs(config=config, console=console, indent='    ')
 
@@ -165,7 +165,18 @@ def print_subcommand_help(
     # add example comments
     examples = command_spec.get('examples')
     if examples is not None and len(examples) > 0:
-        base = config['base_command'] + ' ' + ' '.join(parse_spec['command_sequence'])
+
+        command_sequence = parse_spec['command_sequence']
+        tokens = []
+        if config.get('base_command') is not None:
+            tokens.append(config['base_command'])
+        if command_sequence is not None:
+            tokens.extend(command_sequence)
+        if len(tokens) > 0:
+            base = ' '.join(tokens)
+        else:
+            base = 'COMMAND'
+
         if len(examples) == 1:
             word = 'example'
         else:
@@ -218,7 +229,7 @@ def print_subcommand_help(
                 except Exception:
                     command_spec = {}
 
-                if command_spec.get('special', {}).get('hidden'):
+                if command_spec.get('hidden'):
                     continue
 
                 # get description

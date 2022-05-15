@@ -16,13 +16,13 @@ def get_command_spec() -> toolcli.CommandSpec:
         'args': [
             {'name': 'dirname', 'help': 'name of directory'},
         ],
-        'special': {'cd': True, 'include_parse_spec': True},
+        'extra_data': ['cd_destination_tempfile', 'parse_spec'],
     }
 
 
 cd_snippet_template = """function {program_name} {
     local tempfile="$(mktemp -t tmp.XXXXXX)"
-    command {program_name} "$@" --new_dir_tempfile "$tempfile"
+    command {program_name} "$@" --cd-destination-tempfile "$tempfile"
     if [[ -s "$tempfile" ]]; then
         cd "$(realpath $(cat "$tempfile"))"
     fi
@@ -32,11 +32,11 @@ cd_snippet_template = """function {program_name} {
 
 def cd_command(
     dirname: str,
-    new_dir_tempfile: str,
+    cd_destination_tempfile: str,
     parse_spec: toolcli.ParseSpec,
 ) -> None:
 
-    if new_dir_tempfile is None:
+    if cd_destination_tempfile is None:
         print('using the cd subcommand requires special configuration')
         print()
         print(
@@ -67,6 +67,5 @@ def cd_command(
         return
 
     # change pwd to path
-    with open(new_dir_tempfile, 'w') as f:
+    with open(cd_destination_tempfile, 'w') as f:
         f.write(path)
-

@@ -46,12 +46,11 @@ def parse_raw_command(
 
     # gather arg specs
     command_spec = parse_spec['command_spec']
-    arg_specs = command_spec.get('args', [])
-    arg_specs += config.get('common_args', [])
+    arg_specs: typing.Sequence[spec.ArgSpec] = command_spec.get('args', [])
     if config.get('include_debug_arg'):
-        arg_specs.append(spec.standard_args['debug'])
+        arg_specs = list(arg_specs) + [spec.standard_args['debug']]
     if config.get('include_cd_subcommand'):
-        arg_specs.append(spec.standard_args['cd'])
+        arg_specs = list(arg_specs) + [spec.standard_args['cd']]
 
     # create parser
     parser = SubcommandArgumentParser(
@@ -159,7 +158,6 @@ def get_function_args(
 
     config = parse_spec['config']
     command_spec = parse_spec['command_spec']
-    special = command_spec.get('special', {})
 
     # build function kwargs
     function_args = {}
@@ -197,18 +195,38 @@ def get_function_args(
         else:
             raise Exception('must specify arg: ' + str(name))
 
-    # special arg: cd
-    # include cd kwarg if using using cd
-    if config.get('include_cd_subcommand') and command_spec.get('special', {}).get(
-        'cd'
-    ):
-        cd_arg_name = get_arg_name(spec.standard_args['cd'])
-        function_args[cd_arg_name] = args.get(cd_arg_name)
+    # inject extra_data
+    subcommand_extra_data = command_spec.get('extra_data', [])
+    all_extra_data = config.get('extra_data', {})
+    for name in subcommand_extra_data:
 
-    # special arg: parse_spec
-    # include parse spec
-    if special.get('include_parse_spec'):
-        function_args['parse_spec'] = parse_spec
+        if name == 'cd_destination_tempfile':
+            if 'cd_destination_tempfile' not in function_args:
+                function_args['cd_destination_tempfile'] = args.get('cd_destination_tempfile')
+
+        elif name == 'parse_spec' in subcommand_extra_data:
+            if 'parse_spec' not in function_args:
+                function_args['parse_spec'] = parse_spec
+
+        elif name in all_extra_data:
+            if name not in function_args:
+                function_args[name] = all_extra_data[name]
+
+        else:
+            raise Exception('unknown extra_data: ' + str(name))
+
+    # # special arg: cd
+    # # include cd kwarg if using using cd
+    # if config.get('include_cd_subcommand') and command_spec.get('special', {}).get(
+    #     'cd'
+    # ):
+    #     cd_arg_name = get_arg_name(spec.standard_args['cd'])
+    #     function_args[cd_arg_name] = args.get(cd_arg_name)
+
+    # # special arg: parse_spec
+    # # include parse spec
+    # if special.get('include_parse_spec'):
+    #     function_args['parse_spec'] = parse_spec
 
     return function_args
 

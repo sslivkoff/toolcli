@@ -13,10 +13,8 @@ def get_command_spec() -> toolcli.CommandSpec:
         'args': [
             {'name': 'command_sequence', 'nargs': '+'},
         ],
-        'special': {
-            'include_parse_spec': True,
-            'hidden': True,
-        },
+        'hidden': True,
+        'extra_data': ['parse_spec'],
     }
 
 
@@ -45,4 +43,3 @@ def spec_command(
             else:
                 raise Exception('could not determine module path')
             toolcli.open_file_in_editor(path)
-

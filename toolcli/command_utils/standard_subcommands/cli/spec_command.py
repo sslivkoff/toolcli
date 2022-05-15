@@ -12,10 +12,8 @@ def get_command_spec() -> toolcli.CommandSpec:
         'args': [
             {'name': 'command_sequence', 'nargs': '+'},
         ],
-        'special': {
-            'include_parse_spec': True,
-            'hidden': True,
-        },
+        'hidden': True,
+        'extra_data': ['parse_spec'],
     }
 
 
@@ -32,4 +30,3 @@ def spec_command(
         else:
             command_spec = toolcli.resolve_command_spec(reference)
             rich.print(command_spec)
-

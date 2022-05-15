@@ -130,11 +130,7 @@ def print_root_command_help(
             for command_sequence in command_sequences:
                 if len(command_sequence) == 0:
                     continue
-                if (
-                    command_specs[command_sequence]
-                    .get('special', {})
-                    .get('hidden')
-                ):
+                if command_specs[command_sequence].get('hidden'):
                     continue
 
                 # get url of command

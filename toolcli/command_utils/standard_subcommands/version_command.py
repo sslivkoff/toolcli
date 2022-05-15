@@ -7,7 +7,7 @@ def get_command_spec() -> spec.CommandSpec:
     return {
         'f': version_command,
         'help': 'print cli version',
-        'special': {'include_parse_spec': True},
+        'extra_data': ['parse_spec'],
     }
 
 
@@ -17,4 +17,3 @@ def version_command(parse_spec: spec.ParseSpec) -> None:
         raise Exception('unknown version')
     else:
         print(version)
-

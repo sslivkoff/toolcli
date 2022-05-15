@@ -39,9 +39,7 @@ def get_command_spec():
                 'action': 'store_true',
             },
         ],
-        'special': {
-            'include_parse_spec': True,
-        },
+        'extra_data': ['parse_spec'],
     }
 
 
@@ -218,4 +216,3 @@ def record_all_help_commands(path, parse_spec, overwrite, include_hidden):
                 category=category,
                 path=os.path.join(path, 'categories', category + '__help.html'),
             )
-
