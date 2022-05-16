@@ -8,6 +8,7 @@ import types
 import sys
 
 from toolcli import spec
+from .. import plugin_utils
 
 
 def create_parse_spec(
@@ -18,6 +19,14 @@ def create_parse_spec(
     config: spec.CLIConfig,
 ) -> spec.ParseSpec:
     """create ParseSpec data"""
+
+    if config.get('plugins') is not None:
+        for plugin in config['plugins']:
+            plugin_utils.add_plugin(
+                plugin=plugin,
+                command_index=command_index,
+                config=config,
+            )
 
     # get command spec
     if command_spec is None:

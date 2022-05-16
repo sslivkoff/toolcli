@@ -116,6 +116,12 @@ class HelpUrlGetter(Protocol):
         pass
 
 
+class Plugin(TypedDict, total=False):
+    command_index: CommandIndex
+    required_extra_data: typing.Sequence[str]
+    help_category: str
+
+
 class CLIConfig(TypedDict, total=False):
     #
     # arg parse
