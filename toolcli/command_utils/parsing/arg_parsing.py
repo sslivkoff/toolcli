@@ -51,7 +51,7 @@ def parse_raw_command(
     arg_specs: typing.Sequence[spec.ArgSpec] = command_spec.get('args', [])
     if config.get('include_debug_arg'):
         arg_specs = list(arg_specs) + [spec.standard_args['debug']]
-    if config.get('include_cd_subcommand'):
+    if ('cd',) in parse_spec['command_index']:
         arg_specs = list(arg_specs) + [spec.standard_args['cd']]
 
     # create parser
@@ -59,6 +59,7 @@ def parse_raw_command(
         parse_spec=parse_spec,
         description=config.get('description'),
         prog=config.get('base_command', '<program>'),
+        add_help=False,
     )
 
     # add arguments

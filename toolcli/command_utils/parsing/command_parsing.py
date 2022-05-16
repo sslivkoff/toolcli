@@ -140,6 +140,14 @@ def parse_command_sequence(
         raise Exception(
             'unknown type for raw_command: ' + str(type(raw_command))
         )
+
+    if ('-h' in args or '--help' in args) and ('help',) in command_index:
+        return ('help',)
+    elif ('-V' in args or '--version' in args) and (
+        'version',
+    ) in command_index:
+        return ('version',)
+
     args = [arg for arg in args if not arg.startswith('-')]
 
     # sort command sequences from longest to shortest
