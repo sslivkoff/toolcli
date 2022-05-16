@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import argparse
+import asyncio
 import copy
 import typing
 
 from toolcli import spec
+from .. import execution
 from .. import help_utils
 
 
@@ -198,6 +200,8 @@ def get_function_args(
     # inject extra_data
     subcommand_extra_data = command_spec.get('extra_data', [])
     all_extra_data = config.get('extra_data', {})
+    all_extra_data_getters = config.get('extra_data_getters', {})
+    tasks = []
     for name in subcommand_extra_data:
 
         if name == 'cd_destination_tempfile':
@@ -211,6 +215,25 @@ def get_function_args(
         elif name in all_extra_data:
             if name not in function_args:
                 function_args[name] = all_extra_data[name]
+
+        elif name in all_extra_data_getters:
+            if name not in function_args:
+                function = all_extra_data_getters[name]
+
+                if execution._iscoroutinefunction(function):
+                    if function.__code__.co_argcount == 0:
+                        function_args[name] = asyncio.run(function())
+                    elif function.__code__.co_argcount == 1:
+                        function_args[name] = asyncio.run(function(parse_spec))
+                    else:
+                        raise Exception('unknown format for extra_data getter: ' + str(name))
+                else:
+                    if function.__code__.co_argcount == 0:
+                        function_args[name] = function()
+                    elif function.__code__.co_argcount == 1:
+                        function_args[name] = function(parse_spec)
+                    else:
+                        raise Exception('unknown format for extra_data getter: ' + str(name))
 
         else:
             raise Exception('unknown extra_data: ' + str(name))

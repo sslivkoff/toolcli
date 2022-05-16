@@ -135,21 +135,17 @@ class CLIConfig(TypedDict, total=False):
     sort_command_index: bool
     style_theme: StyleTheme
     extra_data: typing.Mapping[str, typing.Any]
+    extra_data_getters: typing.Mapping[str, typing.Callable[..., typing.Any]]
     #
     # middleware
     pre_middlewares: 'MiddlewareSpecs'
     post_middlewares: 'MiddlewareSpecs'
     #
     # default subcommands
-    include_cd_subcommand: bool
     cd_dir_getter: typing.Callable[[str], str]
     cd_dir_help: dict[str, str]
-    include_help_subcommand: bool
     help_url_getter: HelpUrlGetter
     help_subcommand_categories: typing.Mapping[CommandSequence, str]
-    include_record_help_subcommand: bool
-    include_version_subcommand: bool
-    include_cli_subcommand: bool
     #
     # standard args
     include_debug_arg: bool
@@ -189,4 +185,3 @@ def create_config(config: typing.Optional[CLIConfig] = None) -> CLIConfig:
     new_config = copy.copy(default_config)
     new_config.update(config)
     return new_config
-
