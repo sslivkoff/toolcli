@@ -137,6 +137,8 @@ def resolve_function(
     if isinstance(function_ref, types.FunctionType):
         return function_ref
     elif isinstance(function_ref, (list, tuple)):
+        if not isinstance(function_ref):
+            raise Exception('function reference should be (module_name, function_name)')
         module_name, function_name = function_ref
         module = importlib.import_module(module_name)
         return getattr(module, function_name)

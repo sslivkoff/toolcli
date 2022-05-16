@@ -225,7 +225,8 @@ def get_function_args(
 
         elif name in all_extra_data_getters:
             if name not in function_args:
-                function = all_extra_data_getters[name]
+                function_reference = all_extra_data_getters[name]
+                function = execution.resolve_function(function_reference)
 
                 if execution._iscoroutinefunction(function):
                     if function.__code__.co_argcount == 0:
