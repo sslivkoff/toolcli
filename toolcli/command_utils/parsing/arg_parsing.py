@@ -151,7 +151,10 @@ def is_arg_optional(arg_spec: spec.ArgSpec) -> bool:
         ):
             return True
         else:
-            return all(name.startswith('-') for name in arg_spec['name'])
+            if arg_spec.get('nargs') == '*':
+                return True
+            else:
+                return all(name.startswith('-') for name in arg_spec['name'])
 
 
 def get_function_args(
@@ -193,7 +196,10 @@ def get_function_args(
             elif arg_spec.get('action') == 'store_false':
                 function_args[dest_name] = True
             else:
-                function_args[dest_name] = None
+                if arg_spec.get('nargs') == '*':
+                    function_args[dest_name] = []
+                else:
+                    function_args[dest_name] = None
 
         else:
             raise Exception('must specify arg: ' + str(name))
