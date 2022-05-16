@@ -59,68 +59,157 @@ def create_parse_spec(
     return parse_spec
 
 
+def get_standard_subcommands() -> spec.CommandIndex:
+    return {
+        (
+            'version',
+        ): 'toolcli.command_utils.standard_subcommands.version_command',
+        ('help',): 'toolcli.command_utils.standard_subcommands.help_command',
+        (
+            'record',
+            'help',
+        ): 'toolcli.command_utils.standard_subcommands.record_help_command',
+        ('cd',): 'toolcli.command_utils.standard_subcommands.cd_command',
+        (
+            'cli',
+            'index',
+        ): 'toolcli.command_utils.standard_subcommands.cli.index_command',
+        (
+            'cli',
+            'config',
+        ): 'toolcli.command_utils.standard_subcommands.cli.config_command',
+        (
+            'cli',
+            'spec',
+        ): 'toolcli.command_utils.standard_subcommands.cli.spec_command',
+        (
+            'cli',
+            'theme',
+        ): 'toolcli.command_utils.standard_subcommands.cli.theme_command',
+        (
+            'cli',
+            'annotate',
+        ): 'toolcli.command_utils.standard_subcommands.cli.annotate_command',
+        (
+            'cli',
+            'edit',
+        ): 'toolcli.command_utils.standard_subcommands.cli.edit_command',
+    }
+
+
 def _add_standard_subcommands(
     command_index: spec.CommandIndex, config: spec.CLIConfig
 ) -> spec.CommandIndex:
     """add default subcommands to command_index according to config"""
 
     command_index = copy.copy(command_index)
+    standard_subcommands = get_standard_subcommands()
 
-    # add version subcommand
-    if (
-        config.get('include_version_subcommand')
-        and ('version',) not in command_index
-    ):
-        command_index[
-            ('version',)
-        ] = 'toolcli.command_utils.standard_subcommands.version_command'
+    # determine which subcommands to include
+    include: list[spec.CommandSequence] | None = None
+    include_standard_subcommands = config.get('include_standard_subcommands')
+    if include_standard_subcommands is not None:
+        if isinstance(include_standard_subcommands, bool):
+            if include_standard_subcommands:
+                include = list(standard_subcommands.keys())
+            else:
+                include = []
+        elif isinstance(include_standard_subcommands, list):
+            include = include_standard_subcommands
+        else:
+            raise Exception('unknown format for include_standard_subcommands')
+    exclude_standard_subcommands = config.get('exclude_standard_subcommands')
+    if exclude_standard_subcommands:
+        if isinstance(exclude_standard_subcommands, bool):
+            if not exclude_standard_subcommands:
+                if include is None:
+                    include = list(standard_subcommands.keys())
+            else:
+                if include is not None:
+                    raise Exception(
+                        'conflicting options for include_standard_subcommands and exclude_standard_subcommands'
+                    )
 
-    # add help subcommand
-    if config.get('include_help_subcommand') and ('help',) not in command_index:
-        command_index[
-            ('help',)
-        ] = 'toolcli.command_utils.standard_subcommands.help_command'
-
-    # add record help subcommand
-    if config.get('include_record_help_subcommand') and ('record', 'help',) not in command_index:
-        command_index[
-            ('record', 'help',)
-        ] = 'toolcli.command_utils.standard_subcommands.record_help_command'
-
-    # add cd subcommand
-    if config.get('include_cd_subcommand') and ('cd',) not in command_index:
-        command_index[
-            ('cd',)
-        ] = 'toolcli.command_utils.standard_subcommands.cd_command'
-
-    # add cli subcommand
-    if config.get('include_cli_subcommand'):
-        if ('cli', 'index') not in command_index:
-            command_index[
-                ('cli', 'index')
-            ] = 'toolcli.command_utils.standard_subcommands.cli.index_command'
-        if ('cli', 'config') not in command_index:
-            command_index[
-                ('cli', 'config')
-            ] = 'toolcli.command_utils.standard_subcommands.cli.config_command'
-        if ('cli', 'spec') not in command_index:
-            command_index[
-                ('cli', 'spec')
-            ] = 'toolcli.command_utils.standard_subcommands.cli.spec_command'
-        if ('cli', 'theme') not in command_index:
-            command_index[
-                ('cli', 'theme')
-            ] = 'toolcli.command_utils.standard_subcommands.cli.theme_command'
-        if ('cli', 'annotate') not in command_index:
-            command_index[
-                ('cli', 'annotate')
-            ] = 'toolcli.command_utils.standard_subcommands.cli.annotate_command'
-        if ('cli', 'edit') not in command_index:
-            command_index[
-                ('cli', 'edit')
-            ] = 'toolcli.command_utils.standard_subcommands.cli.edit_command'
+    # add standard subcommands to command_index
+    if include is not None:
+        for command_sequence in include:
+            if command_sequence in command_index:
+                raise Exception(
+                    'name collision in command_index: ' + str(command_sequence)
+                )
+            else:
+                command_index[command_sequence] = standard_subcommands[
+                    command_sequence
+                ]
 
     return command_index
+
+
+#     # add version subcommand
+#     if (
+#         config.get('include_version_subcommand')
+#         and ('version',) not in command_index
+#     ):
+#         command_index[
+#             ('version',)
+#         ] = 'toolcli.command_utils.standard_subcommands.version_command'
+
+#     # add help subcommand
+#     if config.get('include_help_subcommand') and ('help',) not in command_index:
+#         command_index[
+#             ('help',)
+#         ] = 'toolcli.command_utils.standard_subcommands.help_command'
+
+#     # add record help subcommand
+#     if (
+#         config.get('include_record_help_subcommand')
+#         and (
+#             'record',
+#             'help',
+#         )
+#         not in command_index
+#     ):
+#         command_index[
+#             (
+#                 'record',
+#                 'help',
+#             )
+#         ] = 'toolcli.command_utils.standard_subcommands.record_help_command'
+
+#     # add cd subcommand
+#     if config.get('include_cd_subcommand') and ('cd',) not in command_index:
+#         command_index[
+#             ('cd',)
+#         ] = 'toolcli.command_utils.standard_subcommands.cd_command'
+
+#     # add cli subcommand
+#     if config.get('include_cli_subcommand'):
+#         if ('cli', 'index') not in command_index:
+#             command_index[
+#                 ('cli', 'index')
+#             ] = 'toolcli.command_utils.standard_subcommands.cli.index_command'
+#         if ('cli', 'config') not in command_index:
+#             command_index[
+#                 ('cli', 'config')
+#             ] = 'toolcli.command_utils.standard_subcommands.cli.config_command'
+#         if ('cli', 'spec') not in command_index:
+#             command_index[
+#                 ('cli', 'spec')
+#             ] = 'toolcli.command_utils.standard_subcommands.cli.spec_command'
+#         if ('cli', 'theme') not in command_index:
+#             command_index[
+#                 ('cli', 'theme')
+#             ] = 'toolcli.command_utils.standard_subcommands.cli.theme_command'
+#         if ('cli', 'annotate') not in command_index:
+#             command_index[
+#                 ('cli', 'annotate')
+#             ] = 'toolcli.command_utils.standard_subcommands.cli.annotate_command'
+#         if ('cli', 'edit') not in command_index:
+#             command_index[
+#                 ('cli', 'edit')
+#             ] = 'toolcli.command_utils.standard_subcommands.cli.edit_command'
+
+#     return command_index
 
 
 def parse_command_sequence(
@@ -207,4 +296,3 @@ def resolve_command_spec(
         raise Exception(
             'could not parse command spec: ' + str(command_spec_ref)
         )
-
