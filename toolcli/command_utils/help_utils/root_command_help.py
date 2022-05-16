@@ -13,6 +13,7 @@ def print_root_command_help(
     console=None,
     include_links=False,
     only_category=None,
+    show_hidden: bool = False,
 ) -> None:
     """print help message for a root command"""
 
@@ -130,7 +131,7 @@ def print_root_command_help(
             for command_sequence in command_sequences:
                 if len(command_sequence) == 0:
                     continue
-                if command_specs[command_sequence].get('hidden'):
+                if not show_hidden and command_specs[command_sequence].get('hidden'):
                     continue
 
                 # get url of command
