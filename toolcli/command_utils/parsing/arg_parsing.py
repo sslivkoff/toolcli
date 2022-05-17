@@ -208,12 +208,13 @@ def get_function_args(
     subcommand_extra_data = command_spec.get('extra_data', [])
     all_extra_data = config.get('extra_data', {})
     all_extra_data_getters = config.get('extra_data_getters', {})
-    tasks = []
     for name in subcommand_extra_data:
 
         if name == 'cd_destination_tempfile':
             if 'cd_destination_tempfile' not in function_args:
-                function_args['cd_destination_tempfile'] = args.get('cd_destination_tempfile')
+                function_args['cd_destination_tempfile'] = args.get(
+                    'cd_destination_tempfile'
+                )
 
         elif name == 'parse_spec' in subcommand_extra_data:
             if 'parse_spec' not in function_args:
@@ -228,20 +229,42 @@ def get_function_args(
                 function_reference = all_extra_data_getters[name]
                 function = execution.resolve_function(function_reference)
 
-                if execution._iscoroutinefunction(function):
-                    if function.__code__.co_argcount == 0:
-                        function_args[name] = asyncio.run(function())
-                    elif function.__code__.co_argcount == 1:
-                        function_args[name] = asyncio.run(function(parse_spec))
+                # get functions args and kwargs
+                if isinstance(function_reference, list) and len(function_reference) == 3:
+                    if isinstance(function_reference[2], list):
+                        f_args = function_reference[2]
+                        f_kwargs = {}
+                    elif isinstance(function_reference[2], dict):
+                        f_kwargs = function_reference[2]
+                        f_args = []
                     else:
-                        raise Exception('unknown format for extra_data getter: ' + str(name))
+                        raise Exception()
                 else:
-                    if function.__code__.co_argcount == 0:
-                        function_args[name] = function()
-                    elif function.__code__.co_argcount == 1:
-                        function_args[name] = function(parse_spec)
-                    else:
-                        raise Exception('unknown format for extra_data getter: ' + str(name))
+                    f_args = []
+                    f_kwargs = {}
+
+                # execute function
+                if execution._iscoroutinefunction(function):
+                    function_args[name] = asyncio.run(
+                        function(*f_args, **f_kwargs)
+                    )
+                else:
+                    function_args[name] = function(*f_args, **f_kwargs)
+
+                # if execution._iscoroutinefunction(function):
+                #     if function.__code__.co_argcount == 0:
+                #         function_args[name] = asyncio.run(function())
+                #     elif function.__code__.co_argcount == 1:
+                #         function_args[name] = asyncio.run(function(parse_spec))
+                #     else:
+                #         raise Exception('unknown format for extra_data getter: ' + str(name))
+                # else:
+                #     if function.__code__.co_argcount == 0:
+                #         function_args[name] = function()
+                #     elif function.__code__.co_argcount == 1:
+                #         function_args[name] = function(parse_spec)
+                #     else:
+                #         raise Exception('unknown format for extra_data getter: ' + str(name))
 
         else:
             raise Exception('unknown extra_data: ' + str(name))
@@ -260,4 +283,3 @@ def get_function_args(
     #     function_args['parse_spec'] = parse_spec
 
     return function_args
-
