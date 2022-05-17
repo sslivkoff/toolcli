@@ -8,6 +8,65 @@ from toolcli import spec
 from toolcli.command_utils import output_utils
 
 
+def print_prefix_help(
+    command_sequence,
+    parse_spec,
+    console=None,
+):
+    if console is None:
+        console = output_utils.get_rich_console(parse_spec=parse_spec)
+
+    config = parse_spec['config']
+    command_index = parse_spec['command_index']
+
+    console.print(
+        '[title]usage:[/title]\n    '
+        + '[option]'
+        + config['base_command']
+        + ' '
+        + ' '.join(command_sequence)
+        + ' <subcommand> \[options][/option]'
+    )
+    console.print()
+    console.print(
+        '[title]description:[/title]\n'
+        + '    [option]'
+        + config['base_command']
+        + ' '
+        + ' '.join(command_sequence)
+        + '[/option] [description]is used to call subcommands[/description]\n\n'
+        + '    [description]to view help about a specific subcommand run:\n'
+        + '        [option]'
+        + config['base_command']
+        + ' '
+        + ' '.join(command_sequence)
+        + ' <subcommand> -h[/option][/description]'
+    )
+
+    console.print()
+    console.print('[title]available subcommands:[/title]')
+
+    chop = len(command_sequence)
+    subsequences = []
+    helps = []
+    for other_command_sequence, command_spec_reference in command_index.items():
+        if other_command_sequence[:chop] == command_sequence:
+            subsequences.append(' '.join(other_command_sequence[chop:]))
+            command_spec = toolcli.resolve_command_spec(command_spec_reference)
+            helps.append(command_spec.get('help', ''))
+
+    longest_subcommand = max(len(item) for item in subsequences)
+    for subsequence, help in zip(subsequences, helps):
+        text = (
+            '    [option]'
+            + subsequence.ljust(longest_subcommand)
+            + '[/option]    [description]'
+            + help
+            + '[/description]'
+        )
+        console.print(text)
+
+
 def print_root_command_help(
     parse_spec: toolcli.ParseSpec,
     console=None,
@@ -131,7 +190,9 @@ def print_root_command_help(
             for command_sequence in command_sequences:
                 if len(command_sequence) == 0:
                     continue
-                if not show_hidden and command_specs[command_sequence].get('hidden'):
+                if not show_hidden and command_specs[command_sequence].get(
+                    'hidden'
+                ):
                     continue
 
                 # get url of command
@@ -160,4 +221,3 @@ def print_root_command_help(
                     console.print(text)
                 else:
                     console.print(text, style='link ' + url)
-
