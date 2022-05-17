@@ -52,7 +52,14 @@ def run_cli(
         )
 
     # execute command_spec and middlewares
-    execute_parsed_command(parse_spec=parse_spec, args=args)
+    try:
+        execute_parsed_command(parse_spec=parse_spec, args=args)
+    except Exception as exception:
+        if args.get('debug'):
+            _enter_debugger()
+        else:
+            print(exception.args[0])
+            sys.exit()
 
 
 def execute_parsed_command(
@@ -104,29 +111,36 @@ def execute_command_spec(
     function = resolve_function(command_spec['f'])
 
     if not _iscoroutinefunction(function):
-        # execute as normal function
-
-        try:
-            function(**args)
-        except Exception as exception:
-            if debug:
-                _enter_debugger()
-            else:
-                print(exception.args[0])
-                sys.exit()
+        function(**args)
     else:
-        # execute as coroutine
-
         import asyncio
 
-        try:
-            asyncio.run(function(**args))
-        except Exception as exception:
-            if debug:
-                _enter_debugger()
-            else:
-                print(exception.args[0])
-                sys.exit()
+        asyncio.run(function(**args))
+
+    # if not _iscoroutinefunction(function):
+    #     # execute as normal function
+
+    #     try:
+    #         function(**args)
+    #     except Exception as exception:
+    #         if debug:
+    #             _enter_debugger()
+    #         else:
+    #             print(exception.args[0])
+    #             sys.exit()
+    # else:
+    #     # execute as coroutine
+
+    #     import asyncio
+
+    #     try:
+    #         asyncio.run(function(**args))
+    #     except Exception as exception:
+    #         if debug:
+    #             _enter_debugger()
+    #         else:
+    #             print(exception.args[0])
+    #             sys.exit()
 
 
 def resolve_function(
@@ -137,7 +151,7 @@ def resolve_function(
     if isinstance(function_ref, types.FunctionType):
         return function_ref
     elif isinstance(function_ref, (list, tuple)):
-        if not isinstance(function_ref):
+        if len(function_ref) not in [1, 2]:
             raise Exception('function reference should be (module_name, function_name)')
         module_name, function_name = function_ref
         module = importlib.import_module(module_name)
