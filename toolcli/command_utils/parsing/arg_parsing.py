@@ -251,35 +251,7 @@ def get_function_args(
                 else:
                     function_args[name] = function(*f_args, **f_kwargs)
 
-                # if execution._iscoroutinefunction(function):
-                #     if function.__code__.co_argcount == 0:
-                #         function_args[name] = asyncio.run(function())
-                #     elif function.__code__.co_argcount == 1:
-                #         function_args[name] = asyncio.run(function(parse_spec))
-                #     else:
-                #         raise Exception('unknown format for extra_data getter: ' + str(name))
-                # else:
-                #     if function.__code__.co_argcount == 0:
-                #         function_args[name] = function()
-                #     elif function.__code__.co_argcount == 1:
-                #         function_args[name] = function(parse_spec)
-                #     else:
-                #         raise Exception('unknown format for extra_data getter: ' + str(name))
-
         else:
             raise Exception('unknown extra_data: ' + str(name))
-
-    # # special arg: cd
-    # # include cd kwarg if using using cd
-    # if config.get('include_cd_subcommand') and command_spec.get('special', {}).get(
-    #     'cd'
-    # ):
-    #     cd_arg_name = get_arg_name(spec.standard_args['cd'])
-    #     function_args[cd_arg_name] = args.get(cd_arg_name)
-
-    # # special arg: parse_spec
-    # # include parse spec
-    # if special.get('include_parse_spec'):
-    #     function_args['parse_spec'] = parse_spec
 
     return function_args

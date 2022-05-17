@@ -117,31 +117,6 @@ def execute_command_spec(
 
         asyncio.run(function(**args))
 
-    # if not _iscoroutinefunction(function):
-    #     # execute as normal function
-
-    #     try:
-    #         function(**args)
-    #     except Exception as exception:
-    #         if debug:
-    #             _enter_debugger()
-    #         else:
-    #             print(exception.args[0])
-    #             sys.exit()
-    # else:
-    #     # execute as coroutine
-
-    #     import asyncio
-
-    #     try:
-    #         asyncio.run(function(**args))
-    #     except Exception as exception:
-    #         if debug:
-    #             _enter_debugger()
-    #         else:
-    #             print(exception.args[0])
-    #             sys.exit()
-
 
 def resolve_function(
     function_ref: spec.FunctionReference,
@@ -225,4 +200,3 @@ def _execute_middlewares(
             asyncio.run(f(parse_spec=parse_spec, args=args))
         else:
             f(parse_spec=parse_spec, args=args)
-
