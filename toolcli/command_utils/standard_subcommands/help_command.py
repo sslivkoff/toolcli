@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
-import toolcli
+import typing
+
+from toolcli import spec
 from toolcli.command_utils import help_utils
+from toolcli.command_utils.parsing import command_parsing
 
 
-def get_command_spec() -> toolcli.CommandSpec:
+def get_command_spec() -> spec.CommandSpec:
     return {
         'f': help_command,
         'help': 'output help',
@@ -19,20 +22,29 @@ def get_command_spec() -> toolcli.CommandSpec:
     }
 
 
-def help_command(subcommand, help: bool, parse_spec: toolcli.ParseSpec, hidden: bool) -> None:
+def help_command(
+    subcommand: typing.Sequence[str],
+    help: bool,
+    parse_spec: spec.ParseSpec,
+    hidden: bool,
+) -> None:
     if len(subcommand) == 0:
         help_utils.print_root_command_help(parse_spec, show_hidden=hidden)
     else:
         command_sequence = tuple(subcommand)
         command_index = parse_spec['command_index']
+        if command_index is None:
+            return
         command_spec_reference = command_index.get(command_sequence)
         if command_spec_reference is not None:
-            command_spec = toolcli.resolve_command_spec(command_spec_reference)
-            sub_parse_spec = {
+            command_spec = command_parsing.resolve_command_spec(
+                command_spec_reference
+            )
+            sub_parse_spec: spec.ParseSpec = {
                 'command_spec': command_spec,
                 'command_sequence': tuple(subcommand),
                 'command_index': parse_spec.get('command_index'),
-                'config': parse_spec.get('config')
+                'config': parse_spec['config'],
             }
             help_utils.print_subcommand_help(sub_parse_spec)
         else:

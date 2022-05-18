@@ -19,7 +19,7 @@ class StyleTheme(TypedDict, total=False):
 
 ModuleReference = typing.Union[str, types.ModuleType]
 FunctionReference = typing.Union[
-    typing.Callable,
+    typing.Callable[..., typing.Any],
     typing.Union[ModuleReference, str],
 ]
 
@@ -42,7 +42,7 @@ class ArgSpec(TypedDict, total=False):
     #
     # special options
     name: typing.Union[str, typing.Sequence[str]]
-    completer: typing.Callable
+    completer: typing.Callable[..., typing.Any]
     internal: typing.Optional[bool]
     #
     # standard argparse options
@@ -142,6 +142,7 @@ class CLIConfig(TypedDict, total=False):
     style_theme: StyleTheme
     extra_data: typing.Mapping[str, typing.Any]
     extra_data_getters: typing.Mapping[str, typing.Callable[..., typing.Any]]
+    plugins: typing.Sequence[Plugin]
     #
     # middleware
     pre_middlewares: 'MiddlewareSpecs'
@@ -151,7 +152,7 @@ class CLIConfig(TypedDict, total=False):
     cd_dir_getter: typing.Callable[[str], str]
     cd_dir_help: dict[str, str]
     help_url_getter: HelpUrlGetter
-    help_subcommand_categories: typing.Mapping[CommandSequence, str]
+    help_subcommand_categories: typing.MutableMapping[CommandSequence, str]
     #
     # standard args
     include_debug_arg: bool

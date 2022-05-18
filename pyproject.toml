@@ -18,3 +18,7 @@ dependencies = [
 full = [
     "ipdb>=0.13.1"
 ]
+
+[tool.mypy]
+strict = true
+files = ["toolcli"]

@@ -3,16 +3,19 @@ from __future__ import annotations
 import typing
 import types
 
-import toolcli
+if typing.TYPE_CHECKING:
+    import rich.console
+
 from toolcli import spec
 from toolcli.command_utils import output_utils
+from toolcli.command_utils.parsing import command_parsing
 
 
 def print_prefix_help(
-    command_sequence,
-    parse_spec,
-    console=None,
-):
+    command_sequence: spec.CommandSequence,
+    parse_spec: spec.ParseSpec,
+    console: rich.console.Console | None = None,
+) -> None:
     if console is None:
         console = output_utils.get_rich_console(parse_spec=parse_spec)
 
@@ -43,17 +46,28 @@ def print_prefix_help(
         + ' <subcommand> -h[/option][/description]'
     )
 
+    if command_index is None:
+        return
+
     console.print()
     console.print('[title]available subcommands:[/title]')
 
     chop = len(command_sequence)
-    subsequences = []
-    helps = []
+    subsequences: list[str] = []
+    helps: list[str] = []
     for other_command_sequence, command_spec_reference in command_index.items():
         if other_command_sequence[:chop] == command_sequence:
             subsequences.append(' '.join(other_command_sequence[chop:]))
-            command_spec = toolcli.resolve_command_spec(command_spec_reference)
-            helps.append(command_spec.get('help', ''))
+            command_spec = command_parsing.resolve_command_spec(
+                command_spec_reference
+            )
+            help = command_spec.get('help', '')
+            if isinstance(help, str):
+                helps.append(help)
+            elif isinstance(help, types.FunctionType):
+                helps.append(help())
+            else:
+                raise Exception('unknown help format')
 
     longest_subcommand = max(len(item) for item in subsequences)
     for subsequence, help in zip(subsequences, helps):
@@ -68,10 +82,10 @@ def print_prefix_help(
 
 
 def print_root_command_help(
-    parse_spec: toolcli.ParseSpec,
-    console=None,
-    include_links=False,
-    only_category=None,
+    parse_spec: spec.ParseSpec,
+    console: rich.console.Console | None = None,
+    include_links: bool = False,
+    only_category: str | None = None,
     show_hidden: bool = False,
 ) -> None:
     """print help message for a root command"""
@@ -112,7 +126,9 @@ def print_root_command_help(
         helps = {}
         for command_sequence, command_spec_spec in command_index.items():
             try:
-                command_spec = toolcli.resolve_command_spec(command_spec_spec)
+                command_spec = command_parsing.resolve_command_spec(
+                    command_spec_spec
+                )
             except Exception:
                 command_spec = {}
             command_specs[command_sequence] = command_spec

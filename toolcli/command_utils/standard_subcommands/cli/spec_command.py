@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import rich
 
-import toolcli
+from toolcli import spec
+from toolcli.command_utils.parsing import command_parsing
 
 
-def get_command_spec() -> toolcli.CommandSpec:
+def get_command_spec() -> spec.CommandSpec:
     return {
         'f': spec_command,
         'help': 'print command spec for a given command sequence',
@@ -18,7 +19,7 @@ def get_command_spec() -> toolcli.CommandSpec:
 
 
 def spec_command(
-    command_sequence: list[str], parse_spec: toolcli.ParseSpec
+    command_sequence: list[str], parse_spec: spec.ParseSpec
 ) -> None:
     command_index = parse_spec.get('command_index')
     if command_index is None:
@@ -28,5 +29,5 @@ def spec_command(
         if reference is None:
             print('could not find spec for given command sequence')
         else:
-            command_spec = toolcli.resolve_command_spec(reference)
+            command_spec = command_parsing.resolve_command_spec(reference)
             rich.print(command_spec)

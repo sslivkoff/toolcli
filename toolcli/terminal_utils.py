@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 def get_n_terminal_cols() -> int:
     import subprocess
 

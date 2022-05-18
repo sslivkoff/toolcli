@@ -3,7 +3,11 @@ from __future__ import annotations
 import typing
 import types
 
+if typing.TYPE_CHECKING:
+    import rich.console
+
 import toolcli
+from toolcli import spec
 from .. import parsing
 from .. import output_utils
 
@@ -11,7 +15,7 @@ from .. import output_utils
 def print_subcommand_usage(
     parse_spec: toolcli.ParseSpec,
     indent: typing.Optional[str] = None,
-    console=None,
+    console: rich.console.Console | None = None,
 ) -> None:
     """print usage for a subcommand"""
 
@@ -76,22 +80,26 @@ def get_arg_metavar(arg_spec: toolcli.ArgSpec) -> str:
     return metavar
 
 
-def print_cd_dirs(*, config=None, console=None, parse_spec=None, indent=None):
+def print_cd_dirs(
+    *,
+    config: spec.CLIConfig | None = None,
+    console: rich.console.Console | None = None,
+    parse_spec: spec.ParseSpec | None = None,
+    indent: str | None = None,
+) -> None:
     if indent is None:
         indent = ''
 
     if config is None:
         if parse_spec is None:
             raise Exception('must specify config or parse_spec')
-        config = parse_spec.get('config')
+        config = parse_spec['config']
     if console is None:
         if parse_spec is None:
             raise Exception('must specify console or parse_spec')
         console = output_utils.get_rich_console(parse_spec)
 
-    console.print(
-        indent + '[description]directories:[/description]'
-    )
+    console.print(indent + '[description]directories:[/description]')
     for key, value in config.get('cd_dir_help', {}).items():
         console.print(
             indent + '[title]-[/title]',
@@ -101,7 +109,9 @@ def print_cd_dirs(*, config=None, console=None, parse_spec=None, indent=None):
 
 
 def print_subcommand_help(
-    parse_spec: toolcli.ParseSpec, console=None, include_links=False
+    parse_spec: toolcli.ParseSpec,
+    console: rich.console.Console | None = None,
+    include_links: bool = False,
 ) -> None:
     """print help for a subcommand"""
 
@@ -185,7 +195,9 @@ def print_subcommand_help(
             console.print()
             console.print('[title]' + word + ':[/title]')
             for example in examples:
-                console.print('    [option]' + base + ' ' + str(example) + '[/option]')
+                console.print(
+                    '    [option]' + base + ' ' + str(example) + '[/option]'
+                )
         elif isinstance(examples, dict):
             console.print()
             console.print('[title]' + word + ':[/title]')
@@ -194,10 +206,16 @@ def print_subcommand_help(
                     console.print()
 
                 if isinstance(data, dict):
-                    console.print('    [comment]# ' + str(data['description']) + '[/comment]')
+                    console.print(
+                        '    [comment]# '
+                        + str(data['description'])
+                        + '[/comment]'
+                    )
                 else:
                     console.print('    [comment]# ' + str(data) + '[/comment]')
-                console.print('    [option]' + base + ' ' + str(call) + '[/option]')
+                console.print(
+                    '    [option]' + base + ' ' + str(call) + '[/option]'
+                )
         else:
             pass
 
@@ -281,4 +299,3 @@ def print_subcommand_help(
                     + description
                     + '[/description]'
                 )
-

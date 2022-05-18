@@ -89,7 +89,7 @@ def execute_parsed_command(
         _execute_middlewares(config['post_middlewares'], parse_spec, args)
 
 
-def _iscoroutinefunction(function):
+def _iscoroutinefunction(function: typing.Any) -> bool:
     """lightweight version of inspect.iscoroutinefunction()"""
 
     if not isinstance(function, types.FunctionType):
@@ -103,7 +103,7 @@ def _iscoroutinefunction(function):
 
 def execute_command_spec(
     command_spec: spec.CommandSpec,
-    args: dict,
+    args: typing.Mapping[str, typing.Any],
     debug: bool = False,
 ) -> None:
     """execute command_spec command with specified arguments"""

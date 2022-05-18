@@ -22,6 +22,8 @@ def create_parse_spec(
 
     if config.get('plugins') is not None:
         for plugin in config['plugins']:
+            if command_index is None:
+                raise NotImplementedError('plugin without command_index')
             plugin_utils.add_plugin(
                 plugin=plugin,
                 command_index=command_index,
@@ -210,12 +212,16 @@ def resolve_command_spec(
     """return the command spec referred to by command_spec_ref"""
     if isinstance(command_spec_ref, types.ModuleType):
         if hasattr(command_spec_ref, 'get_command_spec'):
-            f = getattr(command_spec_ref, 'get_command_spec')
+            f = typing.cast(
+                typing.Callable[[], spec.CommandSpec],
+                getattr(command_spec_ref, 'get_command_spec'),
+            )
             return f()
         else:
             raise Exception('module has no function get_command_spec()')
     elif isinstance(command_spec_ref, types.FunctionType):
-        return command_spec_ref()
+        f = typing.cast(typing.Callable[[], spec.CommandSpec], command_spec_ref)
+        return f()
     elif isinstance(command_spec_ref, dict):
         return command_spec_ref
     elif isinstance(command_spec_ref, str):

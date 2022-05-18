@@ -1,4 +1,16 @@
-def get_rich_console(parse_spec, record=False):
+from __future__ import annotations
+
+import typing
+
+if typing.TYPE_CHECKING:
+    import rich.console
+
+from toolcli import spec
+
+
+def get_rich_console(
+    parse_spec: spec.ParseSpec, record: bool = False
+) -> rich.console.Console:
 
     import rich.console
     import rich.theme
@@ -12,4 +24,3 @@ def get_rich_console(parse_spec, record=False):
     )
 
     return console
-

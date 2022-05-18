@@ -15,8 +15,8 @@ def get_command_spec() -> spec.CommandSpec:
 
 
 def version_command(parse_spec: spec.ParseSpec, version: bool) -> None:
-    version = parse_spec['config'].get('version')
-    if version is None:
+    config_version = parse_spec['config'].get('version')
+    if config_version is None:
         raise Exception('unknown version')
     else:
-        print(version)
+        print(config_version)

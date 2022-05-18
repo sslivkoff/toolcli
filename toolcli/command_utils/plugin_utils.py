@@ -3,7 +3,11 @@ from __future__ import annotations
 from toolcli import spec
 
 
-def add_plugin(command_index: spec.CommandIndex, config: spec.Config, plugin: spec.Plugin) -> None:
+def add_plugin(
+    command_index: spec.CommandIndex,
+    config: spec.CLIConfig,
+    plugin: spec.Plugin,
+) -> None:
     """modifies command_index and config in-place"""
 
     # add to command index
@@ -38,5 +42,3 @@ def add_plugin(command_index: spec.CommandIndex, config: spec.Config, plugin: sp
         for key in required_extra_data:
             if key not in extra_data and key not in extra_data_getters:
                 raise Exception('extra_data required: ' + str(key))
-
-    return config

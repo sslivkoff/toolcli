@@ -45,13 +45,14 @@ def parse_raw_command(
     config = parse_spec.get('config')
     if config is None:
         config = spec.create_config(config)
+    command_index = parse_spec.get('command_index')
 
     # gather arg specs
     command_spec = parse_spec['command_spec']
     arg_specs: typing.Sequence[spec.ArgSpec] = command_spec.get('args', [])
     if config.get('include_debug_arg'):
         arg_specs = list(arg_specs) + [spec.standard_args['debug']]
-    if ('cd',) in parse_spec['command_index']:
+    if command_index is not None and ('cd',) in command_index:
         arg_specs = list(arg_specs) + [spec.standard_args['cd']]
 
     # create parser
@@ -231,11 +232,12 @@ def get_function_args(
 
                 # get functions args and kwargs
                 if isinstance(function_reference, list) and len(function_reference) == 3:
-                    if isinstance(function_reference[2], list):
-                        f_args = function_reference[2]
-                        f_kwargs = {}
-                    elif isinstance(function_reference[2], dict):
-                        f_kwargs = function_reference[2]
+                    inputs = function_reference[2]
+                    if isinstance(inputs, list):
+                        f_args: list[typing.Any] = inputs
+                        f_kwargs: dict[str, typing.Any] = {}
+                    elif isinstance(inputs, dict):
+                        f_kwargs = inputs
                         f_args = []
                     else:
                         raise Exception()
