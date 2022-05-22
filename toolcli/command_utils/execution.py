@@ -58,7 +58,10 @@ def run_cli(
         if args.get('debug'):
             _enter_debugger()
         else:
-            print(exception.args[0])
+            if len(exception.args) == 0:
+                print('unknown error, use --debug to debug')
+            else:
+                print(exception.args[0])
             sys.exit()
 
 
@@ -81,7 +84,7 @@ def execute_parsed_command(
     execute_command_spec(
         command_spec=parse_spec['command_spec'],
         args=function_args,
-        debug=bool(config.get('include_debug_arg') and args.get('debug')),
+        async_context_manager=config.get('async_context_manager'),
     )
 
     # execute post middleware
@@ -104,7 +107,10 @@ def _iscoroutinefunction(function: typing.Any) -> bool:
 def execute_command_spec(
     command_spec: spec.CommandSpec,
     args: typing.Mapping[str, typing.Any],
-    debug: bool = False,
+    async_context_manager: typing.Callable[
+        ..., typing.AsyncContextManager[typing.Any]
+    ]
+    | None = None,
 ) -> None:
     """execute command_spec command with specified arguments"""
 
@@ -115,7 +121,26 @@ def execute_command_spec(
     else:
         import asyncio
 
-        asyncio.run(function(**args))
+        if async_context_manager is not None:
+            coroutine = _async_execute_in_context_manager(
+                function,
+                args,
+                async_context_manager,
+            )
+            asyncio.run(coroutine)
+        else:
+            asyncio.run(function(**args))
+
+
+async def _async_execute_in_context_manager(
+    function: typing.Callable[..., typing.Any],
+    args: typing.Mapping[str, typing.Any],
+    async_context_manager: typing.Callable[
+        ..., typing.AsyncContextManager[typing.Any]
+    ],
+) -> None:
+    async with async_context_manager():
+        await function(**args)
 
 
 def resolve_function(
@@ -127,7 +152,9 @@ def resolve_function(
         return function_ref
     elif isinstance(function_ref, (list, tuple)):
         if len(function_ref) not in [1, 2]:
-            raise Exception('function reference should be (module_name, function_name)')
+            raise Exception(
+                'function reference should be (module_name, function_name)'
+            )
         module_name, function_name = function_ref
         module = importlib.import_module(module_name)
         return getattr(module, function_name)

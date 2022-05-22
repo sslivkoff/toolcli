@@ -67,6 +67,7 @@ class CallExample(TypedDict, total=False):
 # because mypy cannot express cyclic types...
 # help: typing.Union[str, typing.Callable[['ParseSpec'], str]]
 
+
 class CommandSpec(TypedDict, total=False):
     f: typing.Callable[..., typing.Any]
     help: typing.Union[str, typing.Callable[[typing.Any], str]]
@@ -133,6 +134,9 @@ class CLIConfig(TypedDict, total=False):
         'known',
         'intermixed',
         'known_intermixed',
+    ]
+    async_context_manager: typing.Callable[
+        ..., typing.AsyncContextManager[typing.Any]
     ]
     #
     # toolcli
