@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import asyncio
 import copy
 import typing
 
@@ -247,6 +246,8 @@ def get_function_args(
 
                 # execute function
                 if execution._iscoroutinefunction(function):
+                    import asyncio
+
                     function_args[name] = asyncio.run(
                         function(*f_args, **f_kwargs)
                     )
