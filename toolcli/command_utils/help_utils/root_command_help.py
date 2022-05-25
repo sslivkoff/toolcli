@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import typing
 import types
 
@@ -81,21 +82,82 @@ def print_prefix_help(
         console.print(text)
 
 
+def get_help_dir_hash_path(
+    command_index: spec.CommandIndex, help_cache_dir: str
+) -> str:
+    import hashlib
+
+    command_index_str = str(sorted(command_index.items()))
+    name_hash = hashlib.md5(command_index_str.encode()).hexdigest()
+    help_cache_path = os.path.join(help_cache_dir, name_hash)
+    return help_cache_path
+
+
+def print_help_from_cache(
+    command_index: spec.CommandIndex, help_cache_dir: str
+) -> bool:
+    help_cache_path = get_help_dir_hash_path(command_index, help_cache_dir)
+    if os.path.isfile(help_cache_path):
+        with open(help_cache_path, 'r') as f:
+            contents = f.read()
+        print(contents, end='')
+        return True
+    else:
+        return False
+
+
+def save_help_text_to_cache(
+    help_text: str,
+    command_index: spec.CommandIndex,
+    help_cache_dir: str,
+) -> None:
+    help_cache_path = get_help_dir_hash_path(command_index, help_cache_dir)
+    with open(help_cache_path, 'w') as f:
+        f.write(help_text)
+
+
 def print_root_command_help(
     parse_spec: spec.ParseSpec,
     console: rich.console.Console | None = None,
     include_links: bool = False,
     only_category: str | None = None,
     show_hidden: bool = False,
+    help_cache_dir: str | None = None,
 ) -> None:
     """print help message for a root command"""
-
-    if console is None:
-        console = output_utils.get_rich_console(parse_spec=parse_spec)
 
     config = parse_spec['config']
     command_index = parse_spec['command_index']
     base_command = config.get('base_command', '<base-command>')
+
+    # check cache and use it if possible
+    if help_cache_dir is None:
+        help_cache_dir = config.get('help_cache_dir')
+    if help_cache_dir is not None:
+        command_index = parse_spec.get('command_index')
+        if command_index is not None:
+            printed = print_help_from_cache(
+                command_index=command_index,
+                help_cache_dir=help_cache_dir,
+            )
+            if printed:
+                return
+
+    # create console
+    if help_cache_dir is not None:
+        old_console = console
+
+        import io
+
+        file = io.StringIO()
+
+        console = output_utils.get_rich_console(
+            parse_spec=parse_spec,
+            file=file,
+        )
+    else:
+        if console is None:
+            console = output_utils.get_rich_console(parse_spec=parse_spec)
 
     # print usage and description
     console.print(
@@ -237,3 +299,12 @@ def print_root_command_help(
                     console.print(text)
                 else:
                     console.print(text, style='link ' + url)
+
+    if help_cache_dir is not None:
+        file.seek(0)
+        help_text = file.read()
+        if old_console is None:
+            old_console = output_utils.get_rich_console(parse_spec=parse_spec)
+        print(help_text, end='')
+        if command_index is not None:
+            save_help_text_to_cache(help_text, command_index, help_cache_dir)

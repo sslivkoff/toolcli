@@ -108,7 +108,7 @@ def _add_standard_subcommands(
     standard_subcommands = get_standard_subcommands()
 
     # determine which subcommands to include
-    include: list[spec.CommandSequence] | None = None
+    include: typing.Sequence[spec.CommandSequence] | None = None
     include_standard_subcommands = config.get('include_standard_subcommands')
     if include_standard_subcommands is not None:
         if isinstance(include_standard_subcommands, bool):

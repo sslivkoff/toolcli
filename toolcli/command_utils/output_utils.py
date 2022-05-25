@@ -9,7 +9,9 @@ from toolcli import spec
 
 
 def get_rich_console(
-    parse_spec: spec.ParseSpec, record: bool = False
+    parse_spec: spec.ParseSpec,
+    record: bool = False,
+    file: typing.TextIO | None=None,
 ) -> rich.console.Console:
 
     import rich.console
@@ -21,6 +23,8 @@ def get_rich_console(
     console = rich.console.Console(
         theme=rich.theme.Theme(style_theme, inherit=False),  # type: ignore
         record=record,
+        file=file,
+        color_system='truecolor',
     )
 
     return console

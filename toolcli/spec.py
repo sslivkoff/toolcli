@@ -11,6 +11,7 @@ from typing_extensions import TypedDict, Literal, Protocol
 
 
 class StyleTheme(TypedDict, total=False):
+    title: str
     comment: str
     description: str
     option: str
@@ -153,9 +154,11 @@ class CLIConfig(TypedDict, total=False):
     post_middlewares: 'MiddlewareSpecs'
     #
     # default subcommands
+    include_standard_subcommands: bool | typing.Sequence[typing.Sequence[str]]
     cd_dir_getter: typing.Callable[[str], str]
     cd_dir_help: dict[str, str]
     help_url_getter: HelpUrlGetter
+    help_cache_dir: str | None
     help_subcommand_categories: typing.MutableMapping[CommandSequence, str]
     #
     # standard args

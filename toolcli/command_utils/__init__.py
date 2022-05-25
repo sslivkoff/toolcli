@@ -7,3 +7,6 @@ from .parsing import (
     filetree_to_command_index,
     resolve_command_spec,
 )
+from .help_utils.root_command_help import (
+    print_help_from_cache,
+)
