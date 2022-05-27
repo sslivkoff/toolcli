@@ -112,6 +112,8 @@ def save_help_text_to_cache(
     help_cache_dir: str,
 ) -> None:
     help_cache_path = get_help_dir_hash_path(command_index, help_cache_dir)
+    dirname = os.path.dirname(help_cache_path)
+    os.makedirs(dirname, exist_ok=True)
     with open(help_cache_path, 'w') as f:
         f.write(help_text)
 
