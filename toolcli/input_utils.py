@@ -262,125 +262,65 @@ def input_first_letter_choice(
     return first_letters.index(answer)
 
 
-DirectoryCreateActions = Literal['prompt', 'prompt_and_require', True]
+DirectoryCreateActions = Literal['prompt', 'prompt_and_require', True, False]
 
 
-class InputFilenameOrDirectoryKwargs(TypedDict, total=False):
+class InputDirectoryPathKwargs(TypedDict):
     prompt: str
-    default_directory: typing.Optional[str]
-    default_filename: typing.Optional[str]
+    default: str | None
+    require_absolute: bool
+    must_already_exist: bool
     create_directory: DirectoryCreateActions
-    confirm_filename: bool
     add_prompt_symbol: bool
-    style: typing.Optional[str]
+    style: str | None
 
 
-def input_filename_or_directory(
+def input_directory_path(
     prompt: str,
-    default_directory: typing.Optional[str] = None,
-    default_filename: typing.Optional[str] = None,
-    create_directory: DirectoryCreateActions = 'prompt',
-    confirm_filename: bool = True,
+    default: typing.Optional[str] = None,
+    require_absolute: bool = True,
+    must_already_exist: bool = False,
+    create_directory: DirectoryCreateActions = False,
     add_prompt_symbol: bool = True,
     style: typing.Optional[str] = None,
 ) -> str:
 
-    recursive_kwargs: InputFilenameOrDirectoryKwargs = {
+    recursive_kwargs: InputDirectoryPathKwargs = {
         'prompt': prompt,
-        'default_directory': default_directory,
-        'default_filename': default_filename,
+        'default': default,
+        'require_absolute': require_absolute,
+        'must_already_exist': must_already_exist,
         'create_directory': create_directory,
-        'confirm_filename': confirm_filename,
         'add_prompt_symbol': add_prompt_symbol,
         'style': style,
     }
 
-    path = input_prompt(prompt=prompt, default=default_directory, style=style)
-    if path == '':
-        return input_filename_or_directory(**recursive_kwargs)
-    path = os.path.abspath(os.path.normpath(os.path.expanduser(path)))
+    path = input_prompt(prompt=prompt, default=default, style=style)
 
-    # assume path is a directory if does not have a file extension
-    is_directory = os.path.splitext(path)[-1] == ''
+    # convert path to absolute
+    if require_absolute and not os.path.isabs(path):
+        abs_path = os.path.abspath(path)
+        prompt = 'Full directory path required. Use ' + abs_path + '\n'
+        answer = input_yes_or_no(
+            prompt=prompt,
+            default='yes',
+            add_prompt_symbol=add_prompt_symbol,
+        )
+        if not answer:
+            return input_directory_path(**recursive_kwargs)
 
-    # add filename if is a directory and default filename given
-    if is_directory and default_filename is not None:
-        path = os.path.join(path, default_filename)
-        print('This is a directory. Will use', path)
-        if confirm_filename:
-            if not input_yes_or_no(
-                'Continue? ',
-                default='yes',
-                default_prefix='(default = ',
-                style=style,
-            ):
-                print()
-                return input_filename_or_directory(**recursive_kwargs)
-
-    directory = os.path.dirname(path)
-    if not os.path.isdir(directory):
-        if create_directory in ['prompt', 'prompt_and_require']:
-            directory_prompt = 'Directory does not exist. Create directory? '
-            if input_yes_or_no(
-                prompt=directory_prompt,
-                default='yes',
-                default_prefix='(default = ',
-                style=style,
-            ):
-                print()
-                print('Creating', directory)
-                os.makedirs(directory)
-            elif create_directory == 'prompt_and_require':
-                print('Directory must exist')
-                print()
-                return input_filename_or_directory(**recursive_kwargs)
-
-        elif create_directory is True:
-            print('Creating', directory)
-            os.makedirs(directory)
+    # check existence
+    if not os.path.isdir(path):
+        if must_already_exist:
+            print('Path does not exist')
+            return input_directory_path(**recursive_kwargs)
+        elif create_directory:
+            if create_directory == 'prompt':
+                answer = input_yes_or_no(prompt='Directory does not exist. Create it? ')
+                if answer:
+                    os.makedirs(path)
+            elif create_directory is True:
+                print('Creating directory')
+                os.makedirs(path)
 
     return path
-
-
-# def input_confirm(
-#     value: typing.Any,
-#     pre_prompt: typing.Optional[str] = None,
-#     post_prompt: typing.Optional[str] = None,
-#     alternative_str: typing.Optional[str] = None,
-#     # jsonify: bool = False,
-# ):
-
-#     # initialize args
-#     if pre_prompt is None and post_prompt is None:
-#         pre_prompt = 'use '
-#         post_prompt = '? '
-#     elif pre_prompt is None or post_prompt is None:
-#         raise Exception('must specify both pre_prompt and post_prompt')
-#     if alternative_str is None:
-#         alternative_str = 'what to use instead?\n'
-
-#     # assemble prompt
-#     prompt = pre_prompt + str(value) + post_prompt
-
-#     # confirm value
-#     answer = input_yes_or_no(prompt=prompt, invalid_action='retry')
-#     if answer:
-#         return value
-#     else:
-
-#         # obtain new answer
-#         new_answer = input(alternative_str)
-
-#         # # jsonify new answer
-#         # if jsonify:
-#         #     new_answer = json.loads(new_answer)
-
-#         # confirm new value
-#         return input_confirm(
-#             value=new_answer,
-#             pre_prompt=pre_prompt,
-#             post_prompt=post_prompt,
-#             alternative_str=alternative_str,
-#             # jsonify=jsonify,
-#         )
-
