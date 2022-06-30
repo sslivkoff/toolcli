@@ -35,7 +35,6 @@ def print_subcommand_usage(
             metavar = name.upper().replace('-', '_')
             if arg_spec.get('nargs') == '?':
                 metavar = '[' + metavar + ']'
-            metavar = '[metavar]' + metavar + '[metavar]'
             required_args.append(metavar)
             n_explicit_args += 1
 
@@ -68,6 +67,7 @@ def print_subcommand_usage(
     else:
         sep = ' '
     console.print('[title]usage:[/title]' + sep + usage_str)
+    print('[title]usage:[/title]' + sep + usage_str)
 
 
 def get_arg_metavar(arg_spec: toolcli.ArgSpec) -> str:
