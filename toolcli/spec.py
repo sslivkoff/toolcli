@@ -62,7 +62,9 @@ class ArgSpec(TypedDict, total=False):
 
 class CallExample(TypedDict, total=False):
     description: str
-    runnable: bool
+    runnable: bool  # marks examples that cannot actually be run literally
+    long: bool  # marks examples that take a long time to run
+    skip: bool  # marks examples that should be skipped (e.g. has side effects)
 
 
 # because mypy cannot express cyclic types...
