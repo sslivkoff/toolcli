@@ -67,7 +67,6 @@ def print_subcommand_usage(
     else:
         sep = ' '
     console.print('[title]usage:[/title]' + sep + usage_str)
-    print('[title]usage:[/title]' + sep + usage_str)
 
 
 def get_arg_metavar(arg_spec: toolcli.ArgSpec) -> str:
