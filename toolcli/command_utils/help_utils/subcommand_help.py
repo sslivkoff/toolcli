@@ -206,11 +206,12 @@ def print_subcommand_help(
                     console.print()
 
                 if isinstance(data, dict):
-                    console.print(
-                        '    [comment]# '
-                        + str(data['description'])
-                        + '[/comment]'
-                    )
+                    if data.get('description') is not None:
+                        console.print(
+                            '    [comment]# '
+                            + str(data['description'])
+                            + '[/comment]'
+                        )
                 else:
                     console.print('    [comment]# ' + str(data) + '[/comment]')
                 console.print(
