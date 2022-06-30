@@ -5,8 +5,6 @@ import typing
 from typing_extensions import Literal, TypedDict
 import sys
 
-from . import style_utils
-
 
 InvalidAction = Literal['retry', 'exit']
 
@@ -48,7 +46,13 @@ def input_prompt(
 
     # obtain response
     try:
-        response = style_utils.input(prompt, style=style)
+        import rich.console
+
+        if style is not None:
+            prompt = '[' + style + ']' + prompt + '[/' + style + ']'
+
+        console = rich.console.Console()
+        response = console.input(prompt)
     except KeyboardInterrupt:
         print()
         sys.exit()
