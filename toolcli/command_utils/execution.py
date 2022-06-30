@@ -62,7 +62,7 @@ def run_cli(
                 print('unknown error, use --debug to debug')
             else:
                 print(exception.args[0])
-            sys.exit()
+            sys.exit(1)
 
 
 def execute_parsed_command(
