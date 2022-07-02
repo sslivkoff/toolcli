@@ -303,7 +303,7 @@ def input_directory_path(
 
     # convert path to absolute
     if require_absolute and not os.path.isabs(path):
-        abs_path = os.path.abspath(path)
+        abs_path = os.path.abspath(os.path.expanduser(path))
         prompt = 'Full directory path required. Use ' + abs_path + '\n'
         answer = input_yes_or_no(
             prompt=prompt,
