@@ -26,7 +26,13 @@ def input_prompt(
     default_postfix: typing.Optional[str] = None,
     add_prompt_symbol: bool = True,
     style: typing.Optional[str] = None,
+    headless: bool = False,
 ) -> str:
+
+    if headless:
+        if default is None:
+            raise Exception('headless mode requires default to be specified')
+        return default
 
     # add default prompt
     if default is not None:
@@ -72,6 +78,7 @@ def input_int(
     default_postfix: typing.Optional[str] = None,
     add_prompt_symbol: bool = True,
     style: typing.Optional[str] = None,
+    headless: bool = False,
 ) -> int:
     recursive_kwargs: _InputYesNoKwargs = {
         'prompt': prompt,
@@ -90,6 +97,7 @@ def input_int(
         default_postfix=default_postfix,
         add_prompt_symbol=add_prompt_symbol,
         style=style,
+        headless=headless,
     )
 
     try:
@@ -98,6 +106,8 @@ def input_int(
         print()
         print('Invalid value')
         print()
+        if headless:
+            raise Exception('invalid value used for headless mode')
         return input_int(**recursive_kwargs)
 
 
@@ -109,6 +119,7 @@ def input_yes_or_no(
     default_postfix: typing.Optional[str] = None,
     add_prompt_symbol: bool = True,
     style: typing.Optional[str] = None,
+    headless: bool = False,
 ) -> bool:
 
     recursive_kwargs: _InputYesNoKwargs = {
@@ -128,6 +139,7 @@ def input_yes_or_no(
         default_postfix=default_postfix,
         add_prompt_symbol=add_prompt_symbol,
         style=style,
+        headless=headless,
     )
 
     # act according to response
@@ -137,8 +149,12 @@ def input_yes_or_no(
     elif response in ['n', 'no']:
         return False
     elif response == '':
+        if headless:
+            raise Exception('invalid value used for headless mode')
         return input_yes_or_no(**recursive_kwargs)
     else:
+        if headless:
+            raise Exception('invalid value used for headless mode')
         if invalid_action == 'exit':
             print('must enter yes or no')
             sys.exit()
@@ -159,6 +175,7 @@ def input_number_choice(
     default_postfix: typing.Optional[str] = None,
     add_prompt_symbol: bool = True,
     style: typing.Optional[str] = None,
+    headless: bool = False,
 ) -> int:
 
     # validate inputs
@@ -185,6 +202,7 @@ def input_number_choice(
         default=None,
         add_prompt_symbol=add_prompt_symbol,
         style=style,
+        headless=headless,
     )
 
     if default is not None and choice == '':
@@ -207,6 +225,8 @@ def input_number_choice(
 
         elif invalid_action == 'retry':
             print('invalid choice')
+            if headless:
+                raise Exception('invalid value used for headless mode')
             return input_number_choice(
                 prompt=prompt,
                 choices=choices,
@@ -216,6 +236,7 @@ def input_number_choice(
                 default_postfix=default_postfix,
                 add_prompt_symbol=add_prompt_symbol,
                 style=style,
+                headless=headless,
             )
 
         else:
@@ -287,6 +308,7 @@ def input_directory_path(
     create_directory: DirectoryCreateActions = False,
     add_prompt_symbol: bool = True,
     style: typing.Optional[str] = None,
+    headless: bool = False,
 ) -> str:
 
     recursive_kwargs: InputDirectoryPathKwargs = {
@@ -299,28 +321,41 @@ def input_directory_path(
         'style': style,
     }
 
-    path = input_prompt(prompt=prompt, default=default, style=style)
+    path = input_prompt(
+        prompt=prompt,
+        default=default,
+        style=style,
+        headless=headless,
+    )
 
     # convert path to absolute
     if require_absolute and not os.path.isabs(path):
         abs_path = os.path.abspath(os.path.expanduser(path))
-        prompt = 'Full directory path required. Use ' + abs_path + '\n'
+        prompt = 'Full directory path required. Use ' + abs_path + ' ?\n'
         answer = input_yes_or_no(
             prompt=prompt,
             default='yes',
             add_prompt_symbol=add_prompt_symbol,
+            headless=headless,
         )
         if not answer:
+            if headless:
+                raise Exception('invalid value used for headless mode')
             return input_directory_path(**recursive_kwargs)
 
     # check existence
     if not os.path.isdir(path):
         if must_already_exist:
             print('Path does not exist')
+            if headless:
+                raise Exception('invalid value used for headless mode')
             return input_directory_path(**recursive_kwargs)
         elif create_directory:
             if create_directory == 'prompt':
-                answer = input_yes_or_no(prompt='Directory does not exist. Create it? ')
+                answer = input_yes_or_no(
+                    prompt='Directory does not exist. Create it? ',
+                    headless=headless,
+                )
                 if answer:
                     os.makedirs(path)
             elif create_directory is True:
