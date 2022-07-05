@@ -78,7 +78,7 @@ def parse_raw_command(
         kwargs = copy.copy(arg_spec)
         kwargs.pop('name')
         kwargs.pop('completer', None)
-        kwargs.pop('internal', None)
+        kwargs.pop('hidden', None)
 
         # add argument to parser
         kwargs = typing.cast(
@@ -175,7 +175,7 @@ def get_function_args(
         else:
             dest_name = name.replace('-', '_')
 
-        if arg_spec.get('internal'):
+        if arg_spec.get('hidden'):
             # skip special args
             continue
 

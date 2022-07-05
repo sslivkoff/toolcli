@@ -51,7 +51,7 @@ def print_subcommand_usage(
             required_args.append(flag + ' ' + get_arg_metavar(arg_spec))
             n_explicit_args += 1
 
-        if not arg_spec.get('internal', False):
+        if not arg_spec.get('hidden', False):
             n_non_hidden_args += 1
 
     usage_str = '[option]' + config['base_command']
@@ -149,8 +149,8 @@ def print_subcommand_help(
     arg_helps: list[str] = []
     for arg_spec in command_spec.get('args', []):
 
-        # skip internal args
-        if arg_spec.get('internal'):
+        # skip hidden args
+        if arg_spec.get('hidden'):
             continue
 
         # arg name

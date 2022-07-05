@@ -44,7 +44,7 @@ class ArgSpec(TypedDict, total=False):
     # special options
     name: typing.Union[str, typing.Sequence[str]]
     completer: typing.Callable[..., typing.Any]
-    internal: typing.Optional[bool]
+    hidden: typing.Optional[bool]
     #
     # standard argparse options
     action: typing.Optional[typing.Union[NamedAction, argparse.Action]]
@@ -177,18 +177,18 @@ standard_args: dict[str, ArgSpec] = {
         'name': '--debug',
         'help': 'enter debugger if an error occurs',
         'action': 'store_true',
-        'internal': True,
+        'hidden': True,
     },
     'help': {
         'name': '--help',
         'help': 'output help message',
         'action': 'store_true',
-        'internal': True,
+        'hidden': True,
     },
     'cd': {
         'name': '--cd-destination-tempfile',
         'help': 'used internally by cd command to track destination dir',
-        'internal': True,
+        'hidden': True,
     },
 }
 
