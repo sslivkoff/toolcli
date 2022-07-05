@@ -83,20 +83,28 @@ def print_prefix_help(
 
 
 def get_help_dir_hash_path(
-    command_index: spec.CommandIndex, help_cache_dir: str
+    command_index: spec.CommandIndex,
+    help_cache_dir: str,
+    hidden: bool,
 ) -> str:
     import hashlib
 
     command_index_str = str(sorted(command_index.items()))
     name_hash = hashlib.md5(command_index_str.encode()).hexdigest()
     help_cache_path = os.path.join(help_cache_dir, name_hash)
+    if hidden:
+        help_cache_path = help_cache_path + '__hidden'
     return help_cache_path
 
 
 def print_help_from_cache(
-    command_index: spec.CommandIndex, help_cache_dir: str
+    command_index: spec.CommandIndex,
+    help_cache_dir: str,
+    hidden: bool,
 ) -> bool:
-    help_cache_path = get_help_dir_hash_path(command_index, help_cache_dir)
+    help_cache_path = get_help_dir_hash_path(
+        command_index, help_cache_dir, hidden=hidden
+    )
     if os.path.isfile(help_cache_path):
         with open(help_cache_path, 'r') as f:
             contents = f.read()
@@ -110,8 +118,11 @@ def save_help_text_to_cache(
     help_text: str,
     command_index: spec.CommandIndex,
     help_cache_dir: str,
+    hidden: bool,
 ) -> None:
-    help_cache_path = get_help_dir_hash_path(command_index, help_cache_dir)
+    help_cache_path = get_help_dir_hash_path(
+        command_index, help_cache_dir, hidden=hidden
+    )
     dirname = os.path.dirname(help_cache_path)
     os.makedirs(dirname, exist_ok=True)
     with open(help_cache_path, 'w') as f:
@@ -141,6 +152,7 @@ def print_root_command_help(
             printed = print_help_from_cache(
                 command_index=command_index,
                 help_cache_dir=help_cache_dir,
+                hidden=show_hidden,
             )
             if printed:
                 return
@@ -309,4 +321,6 @@ def print_root_command_help(
             old_console = output_utils.get_rich_console(parse_spec=parse_spec)
         print(help_text, end='')
         if command_index is not None:
-            save_help_text_to_cache(help_text, command_index, help_cache_dir)
+            save_help_text_to_cache(
+                help_text, command_index, help_cache_dir, show_hidden
+            )
