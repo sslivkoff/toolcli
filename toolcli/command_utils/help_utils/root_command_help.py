@@ -136,6 +136,7 @@ def print_root_command_help(
     only_category: str | None = None,
     show_hidden: bool = False,
     help_cache_dir: str | None = None,
+    reset_cache: bool = False,
 ) -> None:
     """print help message for a root command"""
 
@@ -148,7 +149,7 @@ def print_root_command_help(
         help_cache_dir = config.get('help_cache_dir')
     if help_cache_dir is not None:
         command_index = parse_spec.get('command_index')
-        if command_index is not None:
+        if not reset_cache and command_index is not None:
             printed = print_help_from_cache(
                 command_index=command_index,
                 help_cache_dir=help_cache_dir,

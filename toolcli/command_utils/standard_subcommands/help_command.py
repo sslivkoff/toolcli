@@ -17,6 +17,11 @@ def get_command_spec() -> spec.CommandSpec:
             {'name': 'subcommand', 'nargs': '*'},
             {'name': ['-h', '--help'], 'action': 'store_true'},
             {'name': '--hidden', 'action': 'store_true'},
+            {
+                'name': '--reset-cache',
+                'action': 'store_true',
+                'help': 'reset help message cache',
+            },
         ],
         'extra_data': ['parse_spec'],
     }
@@ -27,9 +32,14 @@ def help_command(
     help: bool,
     parse_spec: spec.ParseSpec,
     hidden: bool,
+    reset_cache: bool,
 ) -> None:
     if len(subcommand) == 0:
-        help_utils.print_root_command_help(parse_spec, show_hidden=hidden)
+        help_utils.print_root_command_help(
+            parse_spec,
+            show_hidden=hidden,
+            reset_cache=reset_cache,
+        )
     else:
         command_sequence = tuple(subcommand)
         command_index = parse_spec['command_index']
