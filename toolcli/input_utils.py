@@ -206,7 +206,7 @@ def input_number_choice(
     )
 
     if choice in choices:
-        choice = str(choices.index(default) + 1)
+        choice = str(choices.index(choice) + 1)
 
     try:
 
