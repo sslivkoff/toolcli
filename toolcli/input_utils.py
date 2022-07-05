@@ -199,13 +199,13 @@ def input_number_choice(
     # select input
     choice = input_prompt(
         prompt=full_prompt,
-        default=None,
+        default=default,
         add_prompt_symbol=add_prompt_symbol,
         style=style,
         headless=headless,
     )
 
-    if default is not None and choice == '':
+    if choice in choices:
         choice = str(choices.index(default) + 1)
 
     try:
