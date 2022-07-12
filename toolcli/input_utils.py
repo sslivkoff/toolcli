@@ -25,6 +25,7 @@ def input_prompt(
     default_prefix: typing.Optional[str] = None,
     default_postfix: typing.Optional[str] = None,
     add_prompt_symbol: bool = True,
+    allow_blank: bool = True,
     style: typing.Optional[str] = None,
     headless: bool = False,
 ) -> str:
@@ -66,6 +67,18 @@ def input_prompt(
     # set default response
     if default is not None and response == '':
         response = default
+
+    if response == '' and not allow_blank:
+        return input_prompt(
+            prompt=prompt,
+            default=default,
+            default_prefix=default_prefix,
+            default_postfix=default_postfix,
+            add_prompt_symbol=add_prompt_symbol,
+            allow_blank=allow_blank,
+            style=style,
+            headless=headless,
+        )
 
     return response
 
