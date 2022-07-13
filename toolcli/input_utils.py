@@ -5,6 +5,8 @@ import typing
 from typing_extensions import Literal, TypedDict
 import sys
 
+import toolstr
+
 
 InvalidAction = Literal['retry', 'exit']
 
@@ -33,6 +35,8 @@ def input_prompt(
     if headless:
         if default is None:
             raise Exception('headless mode requires default to be specified')
+        toolstr.print(prompt, style=style)
+        print(default)
         return default
 
     # add default prompt
