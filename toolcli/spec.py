@@ -16,6 +16,7 @@ class StyleTheme(TypedDict, total=False):
     description: str
     option: str
     metavar: str
+    content: str
 
 
 ModuleReference = typing.Union[str, types.ModuleType]
