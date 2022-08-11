@@ -260,7 +260,8 @@ def print_subcommand_help(
                     description = ''
 
                 subsubcommands.append(other_sequence[len(command_sequence) :])
-                descriptions.append(description)
+                descriptions.append(description.split('\n')[0])
+
         if len(subsubcommands) > 0:
             console.print()
             console.print()
