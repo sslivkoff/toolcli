@@ -101,6 +101,7 @@ def record_single_help_command(
             console=console,
             include_links=True,
             only_category=category,
+            reset_cache=True,
         )
     else:
         new_parse_spec = parsing.create_parse_spec(

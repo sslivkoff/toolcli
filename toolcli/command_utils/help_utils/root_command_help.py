@@ -147,6 +147,12 @@ def print_root_command_help(
     # check cache and use it if possible
     if help_cache_dir is None:
         help_cache_dir = config.get('help_cache_dir')
+
+    # do not use cache if custom console is specified
+    if console is not None:
+        help_cache_dir = None
+
+    # use cache if possible
     if help_cache_dir is not None:
         command_index = parse_spec.get('command_index')
         if not reset_cache and command_index is not None:
