@@ -42,6 +42,7 @@ def get_command_spec() -> spec.CommandSpec:
                 'action': 'store_true',
             },
         ],
+        'hidden': True,
         'extra_data': ['parse_spec'],
     }
 
