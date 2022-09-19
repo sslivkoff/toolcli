@@ -17,6 +17,7 @@ def create_parse_spec(
     command_sequence: typing.Optional[spec.CommandSequence],
     command_spec: typing.Optional[spec.CommandSpec],
     config: spec.CLIConfig,
+    add_standard_subcommands: bool = True,
 ) -> spec.ParseSpec:
     """create ParseSpec data"""
 
@@ -36,7 +37,8 @@ def create_parse_spec(
         # add default subcommands
         if command_index is None:
             raise Exception('must specify command_spec or command_index')
-        command_index = _add_standard_subcommands(command_index, config)
+        if add_standard_subcommands:
+            command_index = _add_standard_subcommands(command_index, config)
 
         # get command sequence
         if command_sequence is None:

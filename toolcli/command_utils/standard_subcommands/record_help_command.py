@@ -109,6 +109,7 @@ def record_single_help_command(
             command_sequence=tuple(subcommand),
             command_spec=None,
             config=parse_spec['config'],
+            add_standard_subcommands=False,
         )
         help_utils.print_subcommand_help(
             parse_spec=new_parse_spec,
