@@ -69,8 +69,8 @@ def parse_raw_command(
         name = arg_spec.get('name')
         if isinstance(name, str):
             name_args = [name]
-        elif isinstance(name, list):
-            name_args = name
+        elif isinstance(name, (list, tuple)):
+            name_args = list(name)
         else:
             raise Exception('unknown name format: ' + str(name))
 
