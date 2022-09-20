@@ -25,6 +25,7 @@ def create_parse_spec(
         for plugin in config['plugins']:
             if command_index is None:
                 raise NotImplementedError('plugin without command_index')
+            command_index = dict(command_index)
             plugin_utils.add_plugin(
                 plugin=plugin,
                 command_index=command_index,
@@ -106,7 +107,7 @@ def _add_standard_subcommands(
 ) -> spec.CommandIndex:
     """add default subcommands to command_index according to config"""
 
-    command_index = copy.copy(command_index)
+    command_index = dict(command_index)
     standard_subcommands = get_standard_subcommands()
 
     # determine which subcommands to include

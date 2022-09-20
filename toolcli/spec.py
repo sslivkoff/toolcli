@@ -88,7 +88,8 @@ CommandSpecReference = typing.Union[
     FunctionReference,
 ]
 
-CommandIndex = typing.Dict[CommandSequence, CommandSpecReference]
+CommandIndex = typing.Mapping[CommandSequence, CommandSpecReference]
+MutableCommandIndex = typing.MutableMapping[CommandSequence, CommandSpecReference]
 
 RawCommand = typing.Union[str, typing.List[str]]
 

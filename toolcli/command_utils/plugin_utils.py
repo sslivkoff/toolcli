@@ -4,7 +4,7 @@ from toolcli import spec
 
 
 def add_plugin(
-    command_index: spec.CommandIndex,
+    command_index: spec.MutableCommandIndex,
     config: spec.CLIConfig,
     plugin: spec.Plugin,
 ) -> None:
