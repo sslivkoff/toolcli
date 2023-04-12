@@ -54,7 +54,7 @@ def run_cli(
     # execute command_spec and middlewares
     try:
         execute_parsed_command(parse_spec=parse_spec, args=args)
-    except Exception as exception:
+    except BaseException as exception:
         if args.get('debug'):
             _enter_debugger()
         else:
