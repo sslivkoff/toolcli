@@ -51,7 +51,11 @@ def input_prompt(
                 default_prefix = '(default = '
             if default_postfix is None:
                 default_postfix = ') '
-        prompt += default_prefix + str(default) + default_postfix
+        if default == '':
+            default_str = '""'
+        else:
+            default_str = default
+        prompt += default_prefix + str(default_str) + default_postfix
     if prompt.endswith('\n') and add_prompt_symbol:
         prompt += '> '
 
