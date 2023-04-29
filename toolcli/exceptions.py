@@ -1,0 +1,4 @@
+
+class CDException(Exception):
+    pass
+

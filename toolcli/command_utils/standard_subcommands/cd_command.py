@@ -14,7 +14,12 @@ def get_command_spec() -> toolcli.CommandSpec:
         'f': cd_command,
         'help': get_cd_help,
         'args': [
-            {'name': 'dirname', 'help': 'name of directory'},
+            {
+                'name': 'dirname',
+                'nargs': '?',
+                'default': '',
+                'help': 'name of directory',
+            },
         ],
         'extra_data': ['cd_destination_tempfile', 'parse_spec'],
     }
@@ -35,7 +40,6 @@ def cd_command(
     cd_destination_tempfile: str,
     parse_spec: toolcli.ParseSpec,
 ) -> None:
-
     if cd_destination_tempfile is None:
         print('using the cd subcommand requires special configuration')
         print()
@@ -60,6 +64,9 @@ def cd_command(
         raise Exception('must specify path getter')
     try:
         path = getter(dirname)
+    except toolcli.CDException as e:
+        print(e.args[0])
+        return
     except Exception:
         print('could not find path')
         print()
@@ -69,3 +76,4 @@ def cd_command(
     # change pwd to path
     with open(cd_destination_tempfile, 'w') as f:
         f.write(path)
+

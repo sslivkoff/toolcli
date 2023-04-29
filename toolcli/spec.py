@@ -89,7 +89,9 @@ CommandSpecReference = typing.Union[
 ]
 
 CommandIndex = typing.Mapping[CommandSequence, CommandSpecReference]
-MutableCommandIndex = typing.MutableMapping[CommandSequence, CommandSpecReference]
+MutableCommandIndex = typing.MutableMapping[
+    CommandSequence, CommandSpecReference
+]
 
 RawCommand = typing.Union[str, typing.List[str]]
 
@@ -160,7 +162,9 @@ class CLIConfig(TypedDict, total=False):
     # default subcommands
     include_standard_subcommands: bool | typing.Sequence[typing.Sequence[str]]
     cd_dir_getter: typing.Callable[[str], str]
-    cd_dir_help: dict[str, str]
+    cd_dir_help: typing.Mapping[str, str] | typing.Callable[
+        [], typing.Mapping[str, str]
+    ]
     help_url_getter: HelpUrlGetter
     help_cache_dir: str | None
     help_subcommand_categories: typing.MutableMapping[CommandSequence, str]
@@ -203,3 +207,4 @@ def create_config(config: typing.Optional[CLIConfig] = None) -> CLIConfig:
     new_config = copy.copy(default_config)
     new_config.update(config)
     return new_config
+

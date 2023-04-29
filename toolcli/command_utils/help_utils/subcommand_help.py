@@ -99,12 +99,23 @@ def print_cd_dirs(
         console = output_utils.get_rich_console(parse_spec)
 
     console.print(indent + '[description]directories:[/description]')
-    for key, value in config.get('cd_dir_help', {}).items():
-        console.print(
-            indent + '[title]-[/title]',
-            '[option]' + key + '[/option][title]:[/title]',
-            '[description]' + value + '[/description]',
-        )
+
+    cd_dir_help = config.get('cd_dir_help', {})
+    if isinstance(cd_dir_help, dict):
+        dirs_dict: typing.Mapping[str, str] = cd_dir_help
+    elif hasattr(cd_dir_help, '__call__'):
+        dirs_dict = cd_dir_help()
+    else:
+        raise Exception('invalid format for dirs dict')
+    if len(dirs_dict) == 0:
+        print('[none]')
+    else:
+        for key, value in dirs_dict.items():
+            console.print(
+                indent + '[title]-[/title]',
+                '[option]' + key + '[/option][title]:[/title]',
+                '[description]' + value + '[/description]',
+            )
 
 
 def print_subcommand_help(
