@@ -10,4 +10,4 @@ from .terminal_utils import *
 from .spec import *
 
 
-__version__ = '0.6.11'
+__version__ = '0.6.12'
