@@ -175,11 +175,7 @@ def get_function_args(
         else:
             dest_name = name.replace('-', '_')
 
-        if arg_spec.get('hidden'):
-            # skip special args
-            continue
-
-        elif name in args:
+        if name in args:
             # add argument if it is specified in args
             function_args[dest_name] = args[name]
 
