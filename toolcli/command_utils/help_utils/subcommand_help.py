@@ -122,6 +122,7 @@ def print_subcommand_help(
     parse_spec: toolcli.ParseSpec,
     console: rich.console.Console | None = None,
     include_links: bool = False,
+    show_hidden: bool = False,
 ) -> None:
     """print help for a subcommand"""
 
@@ -161,7 +162,7 @@ def print_subcommand_help(
     for arg_spec in command_spec.get('args', []):
 
         # skip hidden args
-        if arg_spec.get('hidden'):
+        if arg_spec.get('hidden') and not show_hidden:
             continue
 
         # arg name

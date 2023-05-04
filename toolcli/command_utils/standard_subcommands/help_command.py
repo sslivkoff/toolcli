@@ -56,7 +56,7 @@ def help_command(
                 'command_index': parse_spec.get('command_index'),
                 'config': parse_spec['config'],
             }
-            help_utils.print_subcommand_help(sub_parse_spec)
+            help_utils.print_subcommand_help(sub_parse_spec, show_hidden=hidden)
         else:
             length = len(command_sequence)
             prefix_of = [
@@ -69,3 +69,4 @@ def help_command(
                     command_sequence=command_sequence,
                     parse_spec=parse_spec,
                 )
+
