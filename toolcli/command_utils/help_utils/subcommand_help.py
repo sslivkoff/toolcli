@@ -55,7 +55,7 @@ def print_subcommand_usage(
             n_non_hidden_args += 1
 
     usage_str = '[option]' + config['base_command']
-    if command_sequence is not None:
+    if command_sequence is not None and len(command_sequence) > 0:
         usage_str += ' ' + ' '.join(command_sequence)
     usage_str += ' ' + ' '.join(required_args)
     if n_explicit_args < n_non_hidden_args:
@@ -123,6 +123,7 @@ def print_subcommand_help(
     console: rich.console.Console | None = None,
     include_links: bool = False,
     show_hidden: bool = False,
+    include_subsubcommands: bool = True,
 ) -> None:
     """print help for a subcommand"""
 
@@ -274,8 +275,7 @@ def print_subcommand_help(
                 subsubcommands.append(other_sequence[len(command_sequence) :])
                 descriptions.append(description.split('\n')[0])
 
-        if len(subsubcommands) > 0:
-            console.print()
+        if len(subsubcommands) > 0 and include_subsubcommands:
             console.print()
             console.print('[title]usage of subcommands:[/title]')
             console.print(

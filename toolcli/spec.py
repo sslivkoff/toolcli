@@ -168,6 +168,8 @@ class CLIConfig(TypedDict, total=False):
     help_url_getter: HelpUrlGetter
     help_cache_dir: str | None
     help_subcommand_categories: typing.MutableMapping[CommandSequence, str]
+    root_help_arguments: bool
+    root_help_subcommands: bool
     #
     # standard args
     include_debug_arg: bool
@@ -175,6 +177,8 @@ class CLIConfig(TypedDict, total=False):
 
 default_config: CLIConfig = {
     'sort_command_index': True,
+    'root_help_arguments': False,
+    'root_help_subcommands': True,
 }
 
 

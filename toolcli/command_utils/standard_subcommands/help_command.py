@@ -35,11 +35,37 @@ def help_command(
     reset_cache: bool,
 ) -> None:
     if len(subcommand) == 0:
-        help_utils.print_root_command_help(
-            parse_spec,
-            show_hidden=hidden,
-            reset_cache=reset_cache,
-        )
+        config = parse_spec['config']
+        if config['root_help_arguments']:
+            command_index = parse_spec['command_index']
+            if command_index is None:
+                raise Exception('not available when command_index is None')
+            subcommand = config['default_command_sequence']
+            command_spec_reference = command_index.get(subcommand)
+            if command_spec_reference is None:
+                raise Exception(
+                    'not available when command_spec_reference is None'
+                )
+            command_spec = command_parsing.resolve_command_spec(
+                command_spec_reference
+            )
+            sub_parse_spec: spec.ParseSpec = {
+                'command_spec': command_spec,
+                'command_sequence': tuple(subcommand),
+                'command_index': command_index,
+                'config': config,
+            }
+            help_utils.print_subcommand_help(
+                sub_parse_spec,
+                show_hidden=hidden,
+                include_subsubcommands=config['root_help_subcommands'],
+            )
+        else:
+            help_utils.print_root_command_help(
+                parse_spec,
+                show_hidden=hidden,
+                reset_cache=reset_cache,
+            )
     else:
         command_sequence = tuple(subcommand)
         command_index = parse_spec['command_index']
@@ -50,7 +76,7 @@ def help_command(
             command_spec = command_parsing.resolve_command_spec(
                 command_spec_reference
             )
-            sub_parse_spec: spec.ParseSpec = {
+            sub_parse_spec = {
                 'command_spec': command_spec,
                 'command_sequence': tuple(subcommand),
                 'command_index': parse_spec.get('command_index'),
