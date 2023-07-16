@@ -158,10 +158,10 @@ def print_subcommand_help(
         print_cd_dirs(config=config, console=console, indent='    ')
 
     # print arg info
+    max_arg_name_len = 0
     arg_names: list[str] = []
-    arg_helps: list[str] = []
+    arg_helps: list[list[str]] = []
     for arg_spec in command_spec.get('args', []):
-
         # skip hidden args
         if arg_spec.get('hidden') and not show_hidden:
             continue
@@ -174,6 +174,7 @@ def print_subcommand_help(
             name = name.upper().replace('-', '_')
         if name.startswith('-') and arg_spec.get('action') is None:
             name += ' ' + get_arg_metavar(arg_spec)
+        max_arg_name_len = max(len(name), max_arg_name_len)
         name = '[option]' + name + '[/option]'
         arg_names.append(name)
 
@@ -181,13 +182,15 @@ def print_subcommand_help(
         arg_help = arg_spec.get('help')
         if arg_help is None:
             arg_help = ''
-        arg_help = '[description]' + arg_help + '[/description]'
-        arg_helps.append(arg_help)
+        arg_help_lines = [
+            '[description]' + line + '[/description]'
+            for line in arg_help.split('\n')
+        ]
+        arg_helps.append(arg_help_lines)
 
     # add example comments
     examples = command_spec.get('examples')
     if examples is not None and len(examples) > 0:
-
         command_sequence = parse_spec['command_sequence']
         tokens = []
         if config.get('base_command') is not None:
@@ -238,7 +241,9 @@ def print_subcommand_help(
         console.print()
         console.print('[title]arguments:[/title]')
         for a in range(len(arg_names)):
-            console.print('    ' + arg_names[a] + '    ' + arg_helps[a])
+            console.print('    ' + arg_names[a] + '    ' + arg_helps[a][0])
+            for arg_help_line in arg_helps[a][1:]:
+                console.print(' ' * (max_name_len - 9) + arg_help_line)
 
     command_sequence = parse_spec['command_sequence']
     command_index = parse_spec['command_index']
@@ -253,7 +258,6 @@ def print_subcommand_help(
             if other_sequence == command_sequence:
                 continue
             if other_sequence[: len(command_sequence)] == command_sequence:
-
                 # get command spec
                 try:
                     command_spec = parsing.resolve_command_spec(other_reference)
@@ -312,3 +316,4 @@ def print_subcommand_help(
                     + description
                     + '[/description]'
                 )
+
